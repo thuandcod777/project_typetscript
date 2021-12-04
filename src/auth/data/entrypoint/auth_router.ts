@@ -24,6 +24,12 @@ export default class AuthRouter {
             orderRepository
         )
 
+        router.get("/", (req, res) => {
+            res.send({
+                message: "API IS WORKING!!"
+            })
+        })
+
         router.post('/signin', signinValidatorRules(), validate, (req: Request, res: Response) => controller.signin(req, res))
         router.post('/signup', signupValidatorRules(), validate, (req: Request, res: Response) => controller.signup(req, res))
         router.post('/order', (req: Request, res: Response) => controller.saveorder(req, res))
