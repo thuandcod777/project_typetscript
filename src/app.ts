@@ -12,5 +12,7 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use('/user', CompositionRoot.authRouter())
+app.use('/person', CompositionRoot.getAllUserRouter())
+
 
 app.listen(PORT, () => console.log(`listening on port ${PORT}`))

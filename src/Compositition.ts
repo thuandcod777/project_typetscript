@@ -4,6 +4,8 @@ import AuthRepository from './auth/data/repository/auth_repository'
 import OrderRepository from './auth/data/repository/order_repository'
 import BcryptPasswordService from './auth/data/services/bcrypt_password_service'
 import JwtTokenService from './auth/data/services/jwt_token_service'
+import UsersRouter from './users/data/entrypoint/users_router'
+import UsersRepository from './users/data/repository/users_repository'
 
 export default class CompositionRoot {
     private static client: Mongoose
@@ -30,9 +32,13 @@ export default class CompositionRoot {
         const tokenService = new JwtTokenService(process.env.PRIVATE_KEY as string)
         const passwordService = new BcryptPasswordService()
         const repositoryOrder = new OrderRepository(this.client)
-        return AuthRouter.configure(repository, tokenService, passwordService, repositoryOrder)
+        return AuthRouter.configure(repository, tokenService, passwordService, repositoryOrder,)
     }
 
+    public static getAllUserRouter() {
+        const repository = new UsersRepository(this.client)
 
+        return UsersRouter.configure(repository)
+    }
 
 }

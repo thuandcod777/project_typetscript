@@ -3,6 +3,7 @@ import SignUpUsecase from "../../usecase/signup_usecase";
 import OrderUsecase from "../../usecase/order_usercase";
 import ITokenService from "../../services/itoken_service";
 import SignInUseCase from "../../usecase/signin_usecase";
+import IAuthRepository from '../../domain/iauth_repository';
 
 export default class AuthController {
     private readonly signinUseCase: SignInUseCase
@@ -11,12 +12,13 @@ export default class AuthController {
     private readonly orderUseCase: OrderUsecase
 
 
+
     constructor(signinUseCase: SignInUseCase, signupUseCase: SignUpUsecase, tokenService: ITokenService, orderUseCase: OrderUsecase) {
         this.signinUseCase = signinUseCase
         this.signupUseCase = signupUseCase
         this.tokenService = tokenService
         this.orderUseCase = orderUseCase
-
+        
     }
 
     public async signin(req: Request, res: Response) {
@@ -56,4 +58,6 @@ export default class AuthController {
             return res.status(400).json({ error: err })
         }
     }
+
+   
 }
