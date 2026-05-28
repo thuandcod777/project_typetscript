@@ -20,7 +20,7 @@ export default class AuthRepository implements IAuthRepository {
 
 
     public async add(email: string, name: string, auth_type: string, passwordHash?: string): Promise<string> {
-        const userModel = this.client.model<UserModel>('User', UserSchema)
+        const userModel = this.client.models['User'] || this.client.model<UserModel>('User', UserSchema);
 
         const saveUser = await userModel.create({
             email: email.toLowerCase(),
@@ -35,7 +35,6 @@ export default class AuthRepository implements IAuthRepository {
 
         return saveUser.id
     }
-
 
 
 

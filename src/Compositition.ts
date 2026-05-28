@@ -1,11 +1,12 @@
 import { Mongoose } from 'mongoose'
 import AuthRouter from './auth/data/entrypoint/auth_router'
 import AuthRepository from './auth/data/repository/auth_repository'
-import OrderRepository from './auth/data/repository/order_repository'
 import BcryptPasswordService from './auth/data/services/bcrypt_password_service'
 import JwtTokenService from './auth/data/services/jwt_token_service'
 import UsersRouter from './users/data/entrypoint/users_router'
 import UsersRepository from './users/data/repository/users_repository'
+import OrderRouter from './orders/data/entrypoint/order_router';
+import OrderRepository from './orders/data/repository/order_repository';
 
 export default class CompositionRoot {
     private static client: Mongoose
@@ -22,17 +23,16 @@ export default class CompositionRoot {
         };
 
         const connecionStr = encodeURI(process.env.MONGO_DB as string)
-        this.client.connect(connecionStr, options /*  { connectTimeoutMS: 10000 } */
+        this.client.connect(encodeURI("mongodb+srv://mqthuan777_db_user:nXE64wSoIIrdmevR@cluster0.k6gs3jp.mongodb.net/?appName=Cluster0"), options /*  { connectTimeoutMS: 10000 } */
         ).then(() => console.log("Database connected!"))
             .catch(err => console.log(err));
     }
 
     public static authRouter() {
         const repository = new AuthRepository(this.client)
-        const tokenService = new JwtTokenService(process.env.PRIVATE_KEY as string)
+        const tokenService = new JwtTokenService(/* process.env.PRIVATE_KEY */"com.project.app" as string)
         const passwordService = new BcryptPasswordService()
-        const repositoryOrder = new OrderRepository(this.client)
-        return AuthRouter.configure(repository, tokenService, passwordService, repositoryOrder,)
+        return AuthRouter.configure(repository, tokenService, passwordService,)
     }
 
     public static getAllUserRouter() {
@@ -41,4 +41,8 @@ export default class CompositionRoot {
         return UsersRouter.configure(repository)
     }
 
+    public static orderRouter() {
+        const repository = new OrderRepository(this.client)
+        return OrderRouter.configure(repository)
+    }
 }

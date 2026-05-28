@@ -17,8 +17,8 @@ export default class OrderUsecase {
             passwordHash = undefined
         } */
 
-        /*  if(user) return Promise.reject('User ready exists')
-*/
+        /*  if(user) return Promise.reject('User ready exists') */
+
         const orderId = await this.orderRepository.saveOrder(namePerson, nameProduct, numberProduct, orderDate)
 
         return orderId

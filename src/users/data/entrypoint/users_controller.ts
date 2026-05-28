@@ -11,7 +11,6 @@ export default class UsersController {
 
     public async getUsers(req: Request, res: Response) {
         try {
-            /*   const { email } = req.body */
             return this.repository
                 .getUser()
                 .then((users) =>
@@ -19,7 +18,7 @@ export default class UsersController {
                         data: users,
                     })
                 )
-                .catch((err: Error) => res.status(404).json({ error: err }))
+
         } catch (err) {
             return res.status(400).json({ error: err })
         }

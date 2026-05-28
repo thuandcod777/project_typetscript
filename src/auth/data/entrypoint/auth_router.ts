@@ -14,14 +14,14 @@ import AuthController from "./auth_controller";
 export default class AuthRouter {
     public static configure(authRepository: IAuthRepository,
         tokenService: ITokenService,
-        passwordService: IPasswordService, orderRepository: IOrderRepository): Router {
+        passwordService: IPasswordService,
+    ): Router {
         const router = Router()
 
         let controller = AuthRouter.composeController(
             authRepository,
             tokenService,
             passwordService,
-            orderRepository,
         )
 
         router.get("/", (req, res) => {
@@ -32,23 +32,20 @@ export default class AuthRouter {
 
         router.post('/signin', signinValidatorRules(), validate, (req: Request, res: Response) => controller.signin(req, res))
         router.post('/signup', signupValidatorRules(), validate, (req: Request, res: Response) => controller.signup(req, res))
-        router.post('/order', (req: Request, res: Response) => controller.saveorder(req, res))
         return router
     }
 
 
     private static composeController(authRepository: IAuthRepository,
         tokenService: ITokenService,
-        passwordService: IPasswordService, orderRepository: IOrderRepository,): AuthController {
+        passwordService: IPasswordService,): AuthController {
         const signinUserCase = new SignInUseCase(authRepository, passwordService)
         const signupUserCase = new SignUpUsecase(authRepository, passwordService)
-        const saveorderUserCase = new OrderUsecase(orderRepository)
 
-        const controller = new AuthController(signinUserCase, signupUserCase, tokenService, saveorderUserCase)
+        const controller = new AuthController(signinUserCase, signupUserCase, tokenService)
+
         return controller
     }
-
-
 }
 
 

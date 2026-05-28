@@ -5,7 +5,7 @@ export default class SignUpUsecase {
     constructor(private authRepository: IAuthRepository,
         private passwordService: IPasswordService) { }
 
-    public async execute(email: string, name: string, type: string, password: string): Promise<string> {
+    public async execute(email: string, name: string, auth_type: string, password: string): Promise<string> {
         const user = await this.authRepository.find(email).catch((_) => null);
 
         if (user) return Promise.reject('User already exists')
@@ -18,9 +18,7 @@ export default class SignUpUsecase {
             passwordHash = undefined
         }
 
-        /*  if(user) return Promise.reject('User ready exists')
-*/
-        const userId = await this.authRepository.add(email, name, type, passwordHash)
+        const userId = await this.authRepository.add(email, name, auth_type, passwordHash)
 
         return userId
     }
