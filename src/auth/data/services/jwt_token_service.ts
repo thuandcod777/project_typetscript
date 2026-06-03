@@ -3,22 +3,35 @@ import jwt from "jsonwebtoken"
 
 export default class JwtTokenService implements ITokenService {
     constructor(private readonly privateKey: string) { }
-    encode(payload: string | object): string | object {
+
+    generateAccessToken(payload: string | object): string | object {
         let token = jwt.sign({ data: payload }, this.privateKey, {
             issuer: 'project',
-            expiresIn: '1h'
-        })
-        return token
+            expiresIn: '15m'
+        });
+        return token;
     }
 
-    decode(token: string): string | object {
+    generateRefreshToken(payload: string | object): string | object {
+        let token = jwt.sign({ data: payload }, this.privateKey, { issuer: 'project', expiresIn: '10d' })
+        return token;
+    }
+
+    verifyAccessToken(token: string): string | object {
         try {
-            const decoded = jwt.verify(token, this.privateKey)
-            return decoded
+            const decoded = jwt.verify(token, this.privateKey);
+            return decoded;
         } catch (err) {
-            return 'Invalid Token'
+            return 'Invalid Token';
         }
     }
 
-
+    verifyRefreshToken(token: string): string | object {
+        try {
+            const decoded = jwt.verify(token, this.privateKey);
+            return decoded;
+        } catch (err) {
+            return 'Invalid Token';
+        }
+    }
 }

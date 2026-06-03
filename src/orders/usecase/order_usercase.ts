@@ -6,8 +6,8 @@ export default class OrderUsecase {
     constructor(private orderRepository: IOrderRepository) { }
     public async execute(orderData: /* Partial<IOrder> */OrderModel): Promise<OrderModel> {
 
-        const order = await this.orderRepository.saveOrder(orderData)
+        const order = await this.orderRepository.saveOrder(orderData);
 
-        return order
+        return order;
     }
 }

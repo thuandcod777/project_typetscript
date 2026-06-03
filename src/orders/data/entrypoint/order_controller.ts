@@ -73,10 +73,10 @@ const OrderModelSchema = z.object({
 type IOrderModel = z.infer<typeof OrderModelSchema>;
 
 export default class OrderController {
-    private readonly orderUseCase: OrderUsecase
+    private readonly orderUseCase: OrderUsecase;
 
     constructor(orderUseCase: OrderUsecase) {
-        this.orderUseCase = orderUseCase
+        this.orderUseCase = orderUseCase;
     }
 
     public async saveOrder(req: Request, res: Response) {
@@ -165,9 +165,9 @@ export default class OrderController {
 
             const order = await this.orderUseCase.execute(orderModelData);
 
-            return res.status(200).json({ order: order })
+            return res.status(200).json({ order: order });
         } catch (err) {
-            return res.status(400).json({ error: err })
+            return res.status(400).json({ error: err });
         }
     }
 }

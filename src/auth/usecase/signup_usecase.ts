@@ -1,26 +1,26 @@
 import IAuthRepository from "../domain/iauth_repository";
+import { AuthSessionModel } from "../domain/auth";
 import IPasswordService from "../services/ipassword_service";
+import { IRedisService } from "../services/iredis_service";
 
 export default class SignUpUsecase {
-    constructor(private authRepository: IAuthRepository,
-        private passwordService: IPasswordService) { }
+    constructor(private authRepository: IAuthRepository, private redisService: IRedisService) { }
 
-    public async execute(email: string, name: string, auth_type: string, password: string): Promise<string> {
-        const user = await this.authRepository.find(email).catch((_) => null);
+    public async execute(authData: AuthSessionModel): Promise<AuthSessionModel> {
 
-        if (user) return Promise.reject('User already exists')
+        const auth = await this.authRepository.register(authData);
 
-        let passwordHash
+        const daysToSeconds = 5 * 24 * 60 * 60;
 
-        if (password) {
-            passwordHash = await this.passwordService.hash(password)
-        } else {
-            passwordHash = undefined
+        const isSaveRefreshToken = await this.redisService.saveRefreshToken(auth.id, auth.token, daysToSeconds);
+
+        if (!isSaveRefreshToken) {
+            throw new Error("Đăng ký thành công nhưng hệ thống lưu trữ token gặp sự cố.");
         }
 
-        const userId = await this.authRepository.add(email, name, auth_type, passwordHash)
+        console.log(`[Redis] Lưu Refresh Token thành công cho User ID: ${auth.id}`);
 
-        return userId
+        return auth;
     }
 
 }

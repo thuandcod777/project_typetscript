@@ -57,7 +57,6 @@ export const PaymentSchema = new Schema<IPayment>({
 }, { _id: false });
 
 export interface IOrder extends Document {
-    /*  id: string; */
     orderCode: string;
     statusDelivery: string;
     statusPickTime: boolean;

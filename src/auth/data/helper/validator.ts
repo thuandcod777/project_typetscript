@@ -32,7 +32,9 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
     errors.array({ onlyFirstError: true }).map((err) => extractedError.push({ [err.param]: err.msg }))
 
     return res.status(422).json({ error: extractedError }) */
+
     const errors = validationResult(req);
+
     if (!errors.isEmpty()) {
         // This is what sends the 400. Look at the response in Postman to see the details!
         return res.status(400).json({ errors: errors.array() });

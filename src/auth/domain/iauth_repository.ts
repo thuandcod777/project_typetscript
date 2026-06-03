@@ -1,6 +1,8 @@
-import User from "./user";
+import UserModel, { AuthSessionModel } from "./auth";
+import User from "./auth";
 
 export default interface IAuthRepository {
-    find(email: string): Promise<User>
-    add(email: string, name: string, type: string, passwordHash?: string): Promise<string>
+    signInScope(email: string): Promise<AuthSessionModel>;
+    register(userData: AuthSessionModel): Promise<AuthSessionModel>;
+    updateActivceAndRefreshToken(id: string, token: string, isActive: boolean): Promise<boolean>;
 }

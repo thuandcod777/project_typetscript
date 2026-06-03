@@ -5,21 +5,21 @@ import OrderUsecase from "../../usecase/order_usercase";
 
 export default class OrderRouter {
     public static configure(orderRepository: IOrderRepository): Router {
-        const router = Router()
+        const router = Router();
 
-        let controller = OrderRouter.composeController(orderRepository)
+        let controller = OrderRouter.composeController(orderRepository);
 
-        router.post('/order', (req: Request, res: Response) => controller.saveOrder(req, res))
+        router.post('/order', (req: Request, res: Response) => controller.saveOrder(req, res));
 
-        return router
+        return router;
     }
 
     private static composeController(orderRepository: IOrderRepository): OrderController {
 
-        const orderUseCase = new OrderUsecase(orderRepository);
+        const orderUsecase = new OrderUsecase(orderRepository);
 
-        const controller = new OrderController(orderUseCase);
+        const controller = new OrderController(orderUsecase);
 
-        return controller
+        return controller;
     }
 }
