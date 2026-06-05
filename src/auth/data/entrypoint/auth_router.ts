@@ -7,6 +7,7 @@ import AuthController from "./auth_controller";
 import { IRedisService } from "../../services/iredis_service";
 import SignInScopeUsecase from "../../usecase/signin_scope_usecase";
 import JwtTokenService from "../services/jwt_token_service";
+import LogOutScopeUseCase from "../../usecase/logout_scope_usecase";
 
 
 
@@ -29,8 +30,9 @@ export default class AuthRouter {
             })
         });
 
-        router.get('/signin', (req: Request, res: Response) => controller.signinScope(req, res));
+        router.post('/signin', (req: Request, res: Response) => controller.signinScope(req, res));
         router.post('/signup', /* signupValidatorRules(), validate, */(req: Request, res: Response) => controller.signup(req, res));
+        router.post('/logout', (req: Request, res: Response) => controller.logoutScope(req, res));
 
         return router;
     }
@@ -43,7 +45,8 @@ export default class AuthRouter {
     ): AuthController {
         const signupUserCase = new SignUpUsecase(authRepository, redisService)
         const signinScope = new SignInScopeUsecase(authRepository, redisService, tokenService);
-        const controller = new AuthController(signinScope, signupUserCase, tokenService)
+        const logoutScope = new LogOutScopeUseCase(authRepository, redisService);
+        const controller = new AuthController(signinScope, signupUserCase, logoutScope, tokenService)
 
         return controller
     }

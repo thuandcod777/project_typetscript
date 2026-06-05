@@ -5,6 +5,7 @@ import IAuthRepository from '../../domain/iauth_repository';
 import { z } from 'zod';
 import UserModel, { AuthSessionModel } from '../../domain/auth';
 import SignInScopeUsecase from '../../usecase/signin_scope_usecase';
+import LogOutScopeUseCase from '../../usecase/logout_scope_usecase';
 
 
 const AuthModelSchema = z.object({
@@ -18,13 +19,15 @@ const AuthModelSchema = z.object({
 type IAuthModel = z.infer<typeof AuthModelSchema>;
 
 export default class AuthController {
-    private readonly signinScopeUsecase: SignInScopeUsecase;
+    private readonly signinScopeUseCase: SignInScopeUsecase;
     private readonly signupUseCase: SignUpUsecase;
+    private readonly logoutScopeUsecase: LogOutScopeUseCase;
     private readonly tokenService: ITokenService;
 
-    constructor(signinScopeUsecase: SignInScopeUsecase, signupUseCase: SignUpUsecase, tokenService: ITokenService) {
-        this.signinScopeUsecase = signinScopeUsecase
+    constructor(signinScopeUseCase: SignInScopeUsecase, signupUseCase: SignUpUsecase, logoutScopeUseCase: LogOutScopeUseCase, tokenService: ITokenService) {
+        this.signinScopeUseCase = signinScopeUseCase
         this.signupUseCase = signupUseCase
+        this.logoutScopeUsecase = logoutScopeUseCase
         this.tokenService = tokenService
     }
 
@@ -32,9 +35,9 @@ export default class AuthController {
         try {
             const { emai } = req.body;
 
-            const isLogin = await this.signinScopeUsecase.execute(emai);
+            const isLogin = await this.signinScopeUseCase.execute(emai);
 
-            return res.status(200).json({ isLogin: isLogin });
+            return res.status(200).json({ data: isLogin });
 
         } catch (error: any) {
             console.error("Controller Caught Error:", error);
@@ -70,6 +73,17 @@ export default class AuthController {
             const user = await this.signupUseCase.execute(authModelData);
 
             return res.status(200).json({ user: user, message: "User created successfully" });
+        } catch (error: any) {
+            console.error("Controller Caught Error:", error);
+            return res.status(400).json({ error: error.message || error });
+        }
+    }
+
+    public async logoutScope(req: Request, res: Response) {
+        try {
+            const { email } = req.body;
+            const isLogout = await this.logoutScopeUsecase.execute(email);
+            return res.status(200).json({ isLogout: isLogout });
         } catch (error: any) {
             console.error("Controller Caught Error:", error);
             return res.status(400).json({ error: error.message || error });

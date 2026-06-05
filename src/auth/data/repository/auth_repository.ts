@@ -55,6 +55,15 @@ export default class AuthRepository implements IAuthRepository {
         return true;
     }
 
-
+    public async logOutScope(email: string): Promise<boolean> {
+        const doc = this.client.model<IAuthSession>('Auth', AuthSchema);
+        const updated = await doc.findOneAndUpdate({ email: email }, { $set: { isActive: false } }, { new: true });
+        if (!updated) {
+            console.error(`[DB Error] Cập nhật trạng thái hoạt động thất bại cho email: ${email}`);
+            return false;
+        }
+        console.log(`=> [DB Success] Cập nhật trạng thái hoạt động thành công cho email: ${email}`);
+        return true;
+    }
 }
 

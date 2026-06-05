@@ -6,7 +6,7 @@ import ITokenService from "../services/itoken_service";
 
 export default class SignInScopeUsecase {
     constructor(private authRepository: IAuthRepository, private redisTokenService: IRedisService, private tokenService: ITokenService) { }
-    public async execute(email: string): Promise<boolean> {
+    public async execute(email: string): Promise<object> {
         // Lấy phiên đăng nhập hiện tại từ DB
         const userSession = await this.authRepository.signInScope(email);
 
@@ -23,7 +23,7 @@ export default class SignInScopeUsecase {
 
         if (activeNewTokenFromGrace) {
             console.log(`[Grace Period Hit] Client gửi lại token cũ do mất mạng. Trả lại token mới đã sinh trước đó.`)
-            return true;
+            return {};
         }
 
         // Tra cứu chủ sở hữu của Token Client gửi lên trong Redis
@@ -72,6 +72,13 @@ export default class SignInScopeUsecase {
 
         const isUpdated = await this.authRepository.updateActivceAndRefreshToken(userSession.id, newRefreshToken.toString(), true);
 
-        return isUpdated;
+        return {
+            "isLogin": isUpdated,
+            "user": {
+                "name": userSession.user.name,
+                "email": userSession.user.email,
+                "nameCompany": userSession.user.nameCompany
+            }
+        };
     }
 }
