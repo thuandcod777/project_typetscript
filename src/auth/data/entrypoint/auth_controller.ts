@@ -70,9 +70,9 @@ export default class AuthController {
             });
 
 
-            const user = await this.signupUseCase.execute(authModelData);
+            const isSuccess = await this.signupUseCase.execute(authModelData);
 
-            return res.status(200).json({ user: user, message: "User created successfully" });
+            return res.status(200).json({ isSuccess: isSuccess, message: "Đăng ký thương hiệu thành công" });
         } catch (error: any) {
             console.error("Controller Caught Error:", error);
             return res.status(400).json({ error: error.message || error });

@@ -1,4 +1,5 @@
 import OrderModel, { AddressDeliveryModel, AddressTakeGoodsModel, PaymentModel, ProductModel } from "../../domain/order";
+import FindOrderUsecase from "../../usecase/find_order_usecase";
 import OrderUsecase from "../../usecase/order_usercase";
 import { IAddressDelivery, IAddressTakeGoods, IOrder, IPayment, IProduct } from "../models/order_model";
 import { Request, Response } from 'express';
@@ -73,10 +74,11 @@ const OrderModelSchema = z.object({
 type IOrderModel = z.infer<typeof OrderModelSchema>;
 
 export default class OrderController {
-    private readonly orderUseCase: OrderUsecase;
-
-    constructor(orderUseCase: OrderUsecase) {
-        this.orderUseCase = orderUseCase;
+    private readonly orderUsecase: OrderUsecase;
+    private readonly findOrderUsecase: FindOrderUsecase;
+    constructor(orderUseCase: OrderUsecase, findOrderUsecase: FindOrderUsecase) {
+        this.orderUsecase = orderUseCase
+        this.findOrderUsecase = findOrderUsecase
     }
 
     public async saveOrder(req: Request, res: Response) {
@@ -163,9 +165,19 @@ export default class OrderController {
                 payment: paymentData
             });
 
-            const order = await this.orderUseCase.execute(orderModelData);
+            const isSuccess = await this.orderUsecase.execute(orderModelData);
 
-            return res.status(200).json({ order: order });
+            return res.status(200).json({ isSuccess: isSuccess, status: "Đặt hàng thành công" });
+        } catch (err) {
+            return res.status(400).json({ error: err });
+        }
+    }
+
+    public async findOrder(req: Request, res: Response) {
+        try {
+            const { orderCode } = req.body;
+            const isSuccess = await this.findOrderUsecase.execute(orderCode);
+            return res.status(200).json({ isSuccess: true, status: " thành công" });
         } catch (err) {
             return res.status(400).json({ error: err });
         }

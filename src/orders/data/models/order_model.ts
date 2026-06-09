@@ -60,6 +60,7 @@ export interface IOrder extends Document {
     orderCode: string;
     statusDelivery: string;
     statusPickTime: boolean;
+
     product: IProduct;
     addressTakeGoods: IAddressTakeGoods;
     addressDelivery: IAddressDelivery;

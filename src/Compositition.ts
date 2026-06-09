@@ -3,14 +3,16 @@ import AuthRouter from './auth/data/entrypoint/auth_router'
 import AuthRepository from './auth/data/repository/auth_repository'
 import BcryptPasswordService from './auth/data/services/bcrypt_password_service'
 import JwtTokenService from './auth/data/services/jwt_token_service'
-import UsersRouter from './users/data/entrypoint/users_router'
-import UsersRepository from './users/data/repository/users_repository'
 import OrderRouter from './orders/data/entrypoint/order_router';
 import OrderRepository from './orders/data/repository/order_repository';
 import ScopeRepository from './scope/data/repository/scope_repository';
 import ScopeRouter from './scope/data/entrypoint/scope_router';
 import { RedisRepository } from './auth/data/repository/redis_repository';
 import { createClient, RedisClientType } from "redis";
+import BrandRespoitory from './brand/data/repository/brand_repository';
+import BrandRouter from './brand/data/entrypoint/brand_router';
+import PickTimeRouter from './pick_time/data/entrypoint/pick_time_router';
+import PickTimeRepository from './pick_time/data/repository/pick_time_repository';
 
 export default class CompositionRoot {
     private static client: Mongoose;
@@ -50,11 +52,6 @@ export default class CompositionRoot {
         return AuthRouter.configure(repository, redisService, tokenService);
     }
 
-    public static getAllUserRouter() {
-        const repository = new UsersRepository(this.client);
-
-        return UsersRouter.configure(repository);
-    }
 
     public static orderRouter() {
         const repository = new OrderRepository(this.client);
@@ -66,5 +63,15 @@ export default class CompositionRoot {
         const repository = new ScopeRepository(this.client);
 
         return ScopeRouter.configure(repository);
+    }
+
+    public static pickTimeRouter() {
+        const repository = new PickTimeRepository(this.client);
+        return PickTimeRouter.configure(repository);
+    }
+
+    public static brandRouter() {
+        const repository = new BrandRespoitory(this.client);
+        return BrandRouter.configure(repository);
     }
 }

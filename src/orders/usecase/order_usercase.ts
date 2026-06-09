@@ -4,10 +4,10 @@ import OrderModel from "../domain/order";
 
 export default class OrderUsecase {
     constructor(private orderRepository: IOrderRepository) { }
-    public async execute(orderData: /* Partial<IOrder> */OrderModel): Promise<OrderModel> {
+    public async execute(orderData: /* Partial<IOrder> */OrderModel): Promise<boolean> {
 
         const order = await this.orderRepository.saveOrder(orderData);
 
-        return order;
+        return true;
     }
 }
