@@ -1,5 +1,5 @@
-import ITokenService from "../../services/itoken_service";
 import jwt from "jsonwebtoken"
+import ITokenService from "../../domain/services/itoken_service";
 
 export default class JwtTokenService implements ITokenService {
     constructor(private readonly privateKey: string) { }

@@ -16,6 +16,7 @@ app.use('/delivery', CompositionRoot.orderRouter());
 app.use('/picktime', CompositionRoot.pickTimeRouter());
 app.use('/scope', CompositionRoot.scopeRouter());
 app.use('/brand', CompositionRoot.brandRouter());
+app.use('/exchange', CompositionRoot.contractRouter());
 
 const HOST = '0.0.0.0';
 app.listen(Number(PORT), HOST, () => console.log(`listening on port ${PORT}`));

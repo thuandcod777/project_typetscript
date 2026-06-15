@@ -1,12 +1,12 @@
 import { RedisClientType } from "redis";
-import { IRedisService } from "../../services/iredis_service";
+import { IRedisService } from "../../domain/services/iredis_service";
 
 export class RedisRepository implements IRedisService {
 
     constructor(private redisClient: RedisClientType) { }
 
-    private getKey(token: string): string {
-        return `auth:refresh_token:${token}`;
+    private getKey(id: string, token: string): string {
+        return `auth:${id}:${token}`;
     }
 
     private async ensureConnection(): Promise<void> {
@@ -17,18 +17,18 @@ export class RedisRepository implements IRedisService {
 
     async saveRefreshToken(id: string, token: string, ttlSeconds: number): Promise<boolean> {
         /*  await this.ensureConnection(); */
-        const result = await this.redisClient.set(this.getKey(token), id, { EX: ttlSeconds });
+        const result = await this.redisClient.set(this.getKey(id, token), id, { EX: ttlSeconds });
         return result === 'OK';
     }
 
-    async getUserIdByRefreshToken(token: string): Promise<string | null> {
+    async getUserIdByRefreshToken(id: string, token: string): Promise<string | null> {
         /*   await this.ensureConnection(); */
-        return await this.redisClient.get(this.getKey(token));
+        return await this.redisClient.get(this.getKey(id, token));
     }
 
-    async invalidDateRefreshToken(token: string): Promise<void> {
+    async invalidDateRefreshToken(id: string, token: string): Promise<void> {
         /*   await this.ensureConnection(); */
-        await this.redisClient.del(this.getKey(token));
+        await this.redisClient.del(this.getKey(id, token));
     }
 
     async saveTokenFromGracePeriod(id: string, token: string, ttlSeconds: number): Promise<string> {
