@@ -1,8 +1,8 @@
 export interface IRegisterInputDTO {
     name: string;
     email: string;
-    nameCompany: string;
-    numberPhone: string;
+    name_company: string;
+    number_phone: string;
     type: string;
     role: string;
 }

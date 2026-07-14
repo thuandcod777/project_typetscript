@@ -1,5 +1,5 @@
-import { ScopeCollection } from "../entities/scope-collection.entity";
+import { IScopeInputDTO } from "../dtos/scope_input.dto";
 
 export default interface IScopeRepository {
-    saveScopeList(email: string, scopeData: ScopeCollection[]): Promise<ScopeCollection>;
+    saveScopeList(scopeDataInput: IScopeInputDTO): Promise<boolean>;
 }

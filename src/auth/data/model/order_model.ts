@@ -2,8 +2,8 @@ import mongoose, { Document, Schema, Types } from 'mongoose'
 import { IPickTime, PickTimeSchema } from './pick_time_model';
 
 export interface IProduct {
-    nameProduct: string;
-    typeProduct: string;
+    name_product: string;
+    type_product: string;
     amount: number;
     width: number;
     height: number;
@@ -13,8 +13,8 @@ export interface IProduct {
 }
 
 export const ProductSchema = new Schema<IProduct>({
-    nameProduct: { type: String, trim: true, required: true },
-    typeProduct: { type: String, trim: true, required: true },
+    name_product: { type: String, trim: true, required: true },
+    type_product: { type: String, trim: true, required: true },
     amount: { type: Number, required: true },
     width: { type: Number, required: true },
     height: { type: Number, required: true },
@@ -48,35 +48,34 @@ export const AddressDeliverySchema = new Schema<IAddressDelivery>({
 }, { _id: false });
 
 export interface IPayment {
-    typePayment: string;
-    stepPayment: number;
+    type_payment: string;
+    step_payment: number;
 }
 
 export const PaymentSchema = new Schema<IPayment>({
-    typePayment: { type: String, trim: true, required: true },
-    stepPayment: { type: Number, required: true }
+    type_payment: { type: String, trim: true, required: true },
+    step_payment: { type: Number, required: true }
 }, { _id: false });
 
 export interface IOrder extends Document {
-    userId: Types.ObjectId;
-    orderCode: string;
-    statusDelivery: string;
-    statusPickTime: Types.ObjectId | null;
-    product: IProduct;
-    addressTakeGoods: IAddressTakeGoods;
-    addressDelivery: IAddressDelivery;
-    payment: IPayment;
-
+    user_id: Types.ObjectId;
+    order_code: string;
+    status_delivery: string;
+    status_pick_time: IPickTime | null;
+    product: IProduct | null;
+    address_take_goods: IAddressTakeGoods | null;
+    address_delivery: IAddressDelivery | null;
+    payment: IPayment | null;
 }
 
 export const OrderSchema = new Schema<IOrder>({
-    userId: { type: mongoose.Schema.Types.ObjectId },
-    orderCode: { type: String, trim: true, required: true, unique: true },
-    statusDelivery: { type: String, default: "Confirm" },
-    statusPickTime: { type: mongoose.Schema.Types.ObjectId, default: null },
+    user_id: { type: mongoose.Schema.Types.ObjectId },
+    order_code: { type: String, trim: true, required: true, unique: true },
+    status_delivery: { type: String, default: "Confirm" },
+    status_pick_time: { type: PickTimeSchema, default: null },
     product: { type: ProductSchema, required: true },
-    addressTakeGoods: { type: AddressTakeGoodsSchema, required: true },
-    addressDelivery: { type: AddressDeliverySchema, required: true },
+    address_take_goods: { type: AddressTakeGoodsSchema, required: true },
+    address_delivery: { type: AddressDeliverySchema, required: true },
     payment: { type: PaymentSchema, required: true }
 }, { _id: true, timestamps: true });
 

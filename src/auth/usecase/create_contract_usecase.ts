@@ -1,18 +1,15 @@
-import fa from "zod/v4/locales/fa.cjs";
+import { ICreateContractInputDTO } from "../domain/dtos/verify_contract_input";
+import { ResponseDto } from "../domain/entities/response.entity";
 import IContractRepository from "../domain/services/icontract_repository";
-import { IContractDetailsInputDTO } from "../domain/dtos/contract_details_input.dto";
-import { IEmailInputDTO } from "../domain/dtos/email_input.dto";
 
 export default class CreateContractUsecase {
     constructor(private contractRepository: IContractRepository) { }
 
-    public async execute(email: IEmailInputDTO, contract_data: IContractDetailsInputDTO): Promise<boolean> {
-        const data = await this.contractRepository.create_contract(email, contract_data);
-
-        if (!data) {
-            return false;
+    public async execute(createContract: ICreateContractInputDTO): Promise<ResponseDto> {
+        const result = await this.contractRepository.createContract(createContract);
+        if (!result) {
+            throw new Error('Xác thực hợp đồng thành công');
         }
-
-        return true;
+        return ResponseDto.success('Đã tạo mã hợp đồng thành công');
     }
 }

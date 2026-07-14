@@ -1,89 +1,85 @@
 import { Mongoose } from "mongoose";
-import { ScopeCollection } from "../../domain/entities/scope-collection.entity";
 import IScopeRepository from "../../domain/services/iscope_repository";
 import { IUser, UserSchema } from "../model/auth_model";
 import { IStepContract, StepContractSchema } from "../model/contract_model";
+import { ScopeCollection } from "../../domain/entities/scope.entity";
+import { IScopeInputDTO } from "../../domain/dtos/scope_input.dto";
 
 export default class ScopeRepository implements IScopeRepository {
     constructor(private readonly client: Mongoose) { }
 
-    public async saveScopeList(email: string, scopeList: ScopeCollection[]): Promise<ScopeCollection> {
+    public async saveScopeList(scopeDataInput: IScopeInputDTO): Promise<boolean> {
         const userModel = this.client.model<IUser>('User', UserSchema);
         const contractModel = this.client.model<IStepContract>('Contract', StepContractSchema);
 
-        if (!scopeList) {
-            throw new Error("Scope list cannot be null");
-        }
+        /*   if (!scopeList) {
+              throw new Error("Scope list cannot be null");
+          } */
 
-        const formattedScopes = scopeList.map(scope => ({
+        const formattedScopes = scopeDataInput.scopes.map(scope => ({
             is_scope: true,
             address: scope.address,
-            location: scope.latlng.toGeoJson()
+            location: scope.location
         }));
 
         const dbSession = await this.client.startSession();
-        dbSession.startTransaction();
+
+
         try {
-            // 1. Tìm user bằng email
-            const user = await userModel.findOne({ email: email }).session(dbSession);
-            if (!user) {
-                throw new Error(`User with email ${email} not found`);
-            }
+            await dbSession.withTransaction(async () => {
+                const user = await userModel.findOne({ email: scopeDataInput.email }).session(dbSession);
 
-            const contractId = user.contract;
+                if (!user) {
+                    throw new Error(`User with email ${scopeDataInput.email} not found`);
+                }
 
-            if (!contractId) {
-                throw new Error("User does not have a contract assigned");
-            }
+                const contractId = user.contract;
 
-            // 2. Lấy thông tin contract hiện tại để kiểm tra trường scope
-            const contract = await contractModel.findById(contractId).session(dbSession);
-            if (!contract) {
-                throw new Error("Contract not found");
-            }
+                if (!contractId) {
+                    throw new Error("User does not have a contract assigned");
+                }
 
-            let updatedContract;
+                const contract = await contractModel.findById(contractId).session(dbSession);
 
-            // 3. Xử lý cập nhật dựa trên trạng thái của trường scope (null hoặc đã có dữ liệu)
-            if (!contract.scope) {
-                // Nếu scope đang null -> Dùng $set để khởi tạo mới toàn bộ Object, tránh lỗi PathNotViable
-                updatedContract = await contractModel.findByIdAndUpdate(
-                    contractId,
-                    {
-                        $set: {
-                            scope: {
-                                is_success: true,
-                                scopes: formattedScopes
+                if (!contract) {
+                    throw new Error("Contract not found");
+                }
+
+                if (!contract.scope) {
+                    await contractModel.findByIdAndUpdate(
+                        contractId,
+                        {
+                            $set: {
+                                step_contract: scopeDataInput.step_contract,
+                                scope: {
+                                    is_success: true,
+                                    scopes: formattedScopes
+                                }
                             }
-                        }
-                    },
-                    { new: true, runValidators: true, session: dbSession }
-                );
-            } else {
-                updatedContract = await contractModel.findByIdAndUpdate(
-                    contractId,
-                    {
-                        $set: {
-                            scope: {
-                                is_success: true,
-                                scopes: formattedScopes
+                        },
+                        { new: true, runValidators: true, session: dbSession }
+                    );
+                } else {
+                    await contractModel.findByIdAndUpdate(
+                        contractId,
+                        {
+                            $set: {
+                                scope: {
+                                    is_success: true,
+                                    scopes: formattedScopes
+                                }
                             }
-                        }
-                    },
-                    { new: true, runValidators: true, session: dbSession }
-                );
-            }
+                        },
+                        { new: true, runValidators: true, session: dbSession }
+                    );
+                }
 
-            // ĐÃ XÓA: bỏ dòng await user?.save() dư thừa gây lỗi Validation Role
 
-            await dbSession.commitTransaction();
+            });
 
-            // Trả về dữ liệu scope đã được cập nhật từ contract
-            const finalScopeData = updatedContract?.scope;
-            return finalScopeData as unknown as ScopeCollection;
+            return true;
 
         } catch (error) {
-            await dbSession.abortTransaction();
             console.error(`[DB Error] Lỗi xử lý lưu danh sách Scope:`, error);
             throw error;
         } finally {

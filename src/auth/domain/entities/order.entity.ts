@@ -1,9 +1,9 @@
-import { PickTime } from "./pick_time.entity";
+import { PickTime, IPickTimeJSON } from "./pick-time.entity";
 
 interface IProductJSON {
     name_product: string;
     type_product: string;
-    amount: string | number; // Đề phòng API trả về string như code gốc int.parse()
+    amount: string | number;
     width: string | number;
     height: string | number;
     weight: string | number;
@@ -21,10 +21,11 @@ interface IPaymentJSON {
     step_payment: number;
 }
 
-interface IOrderJSON {
-    orderCode: string;
+export interface IOrderJSON {
+    user_id: string;
+    order_code: string;
     status_delivery: string;
-    status_pick_time: boolean;
+    status_pick_time: IPickTimeJSON | null;
     product: IProductJSON;
     address_take_goods: IAddressJSON;
     address_delivery: IAddressJSON;
@@ -149,52 +150,52 @@ export class Payment {
 }
 
 export default class Order {
-    readonly userId: string;
-    readonly orderCode: string;
-    readonly statusDelivery: string;
-    readonly statusPickTime: PickTime | null;
+    readonly user_id: string;
+    readonly order_code: string;
+    readonly status_delivery: string;
+    readonly status_pick_time: PickTime | null;
     readonly product: Product;
-    readonly addressTakeGoods: AddressTakeGoods;
-    readonly addressDelivery: AddressDelivery;
+    readonly address_take_goods: AddressTakeGoods;
+    readonly address_delivery: AddressDelivery;
     readonly payment: Payment;
 
     constructor({
-        userId = "",
-        orderCode = "",
-        statusDelivery = "Confirm",
-        statusPickTime = null,
+        user_id = "",
+        order_code = "",
+        status_delivery = "Confirm",
+        status_pick_time = null,
         product,
-        addressTakeGoods,
-        addressDelivery,
+        address_take_goods,
+        address_delivery,
         payment }: {
-            userId?: string,
-            orderCode?: string;
-            statusDelivery?: string;
-            statusPickTime?: PickTime | null;
+            user_id?: string,
+            order_code?: string;
+            status_delivery?: string;
+            status_pick_time?: PickTime | null;
             product: Product;
-            addressTakeGoods: AddressTakeGoods;
-            addressDelivery: AddressDelivery;
+            address_take_goods: AddressTakeGoods;
+            address_delivery: AddressDelivery;
             payment: Payment;
         }) {
-        this.userId = userId;
-        this.orderCode = orderCode;
-        this.statusDelivery = statusDelivery;
-        this.statusPickTime = statusPickTime;
+        this.user_id = user_id;
+        this.order_code = order_code;
+        this.status_delivery = status_delivery;
+        this.status_pick_time = status_pick_time;
         this.product = product;
-        this.addressTakeGoods = addressTakeGoods;
-        this.addressDelivery = addressDelivery;
+        this.address_take_goods = address_take_goods;
+        this.address_delivery = address_delivery;
         this.payment = payment;
     }
 
-    static fromJson(json: any): Order {
+    static fromJson(json: IOrderJSON): Order {
         return new Order({
-            userId: json.userId,
-            orderCode: json.orderCode,
-            statusDelivery: json.statusDelivery,
-            statusPickTime: json.statusPickTime ? PickTime.fromJson(json.statusPickTime) : null,
+            user_id: json.user_id,
+            order_code: json.order_code,
+            status_delivery: json.status_delivery,
+            status_pick_time: json.status_pick_time ? PickTime.fromJson(json.status_pick_time) : null,
             product: Product.fromJson(json.product),
-            addressTakeGoods: AddressTakeGoods.fromJson(json.addressTakeGoods),
-            addressDelivery: AddressDelivery.fromJson(json.addressDelivery),
+            address_take_goods: AddressTakeGoods.fromJson(json.address_take_goods),
+            address_delivery: AddressDelivery.fromJson(json.address_delivery),
             payment: Payment.fromJson(json.payment),
         });
     }

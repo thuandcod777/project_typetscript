@@ -5,9 +5,6 @@ export class RedisRepository implements IRedisService {
 
     constructor(private redisClient: RedisClientType) { }
 
-    private getKey(id: string, token: string): string {
-        return `auth:${id}:${token}`;
-    }
 
     private async ensureConnection(): Promise<void> {
         if (!this.redisClient.isOpen) {
@@ -15,20 +12,39 @@ export class RedisRepository implements IRedisService {
         }
     }
 
+    private getKeyRefresh(id: string, token: string): string {
+        return `auth_refresh:${id}:${token}`;
+    }
+
+    private getKeyAccess(id: string, token: string): string {
+        return `auth_access:${id}:${token}`;
+    }
+
     async saveRefreshToken(id: string, token: string, ttlSeconds: number): Promise<boolean> {
-        /*  await this.ensureConnection(); */
-        const result = await this.redisClient.set(this.getKey(id, token), id, { EX: ttlSeconds });
+        const result = await this.redisClient.set(this.getKeyRefresh(id, token), id, { EX: ttlSeconds });
+        return result === 'OK';
+    }
+
+    async saveAccessToken(id: string, token: string, ttlSeconds: number): Promise<boolean> {
+        const result = await this.redisClient.set(this.getKeyAccess(id, token), id, { EX: ttlSeconds });
         return result === 'OK';
     }
 
     async getUserIdByRefreshToken(id: string, token: string): Promise<string | null> {
         /*   await this.ensureConnection(); */
-        return await this.redisClient.get(this.getKey(id, token));
+        return await this.redisClient.get(this.getKeyRefresh(id, token));
     }
 
     async invalidDateRefreshToken(id: string, token: string): Promise<void> {
-        /*   await this.ensureConnection(); */
-        await this.redisClient.del(this.getKey(id, token));
+        await this.redisClient.del(this.getKeyRefresh(id, token));
+    }
+
+    async getUserIdByAccessToken(id: string, token: string): Promise<string | null> {
+        return await this.redisClient.get(this.getKeyAccess(id, token));
+    }
+
+    async invalidDateAccessToken(id: string, token: string) {
+        await this.redisClient.del(this.getKeyAccess(id, token));
     }
 
     async saveTokenFromGracePeriod(id: string, token: string, ttlSeconds: number): Promise<string> {
@@ -49,4 +65,13 @@ export class RedisRepository implements IRedisService {
         await this.redisClient.set(key, newtoken, { EX: ttlSeconds });
     }
 
+    async getRemainingTTL(id: string, oldToken: string): Promise<number | null> {
+        const key = this.getKeyRefresh(id, oldToken);
+        const remainingTTL = await this.redisClient.ttl(key);
+
+        if (remainingTTL <= 0) return null;
+
+        console.log(`TTL còn lại của key ${key}:`, remainingTTL);
+        return remainingTTL;
+    }
 }

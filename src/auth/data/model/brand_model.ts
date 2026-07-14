@@ -1,6 +1,7 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
-export interface IBook {
+export interface IBooking {
+    brandId: Types.ObjectId;
     bookCode: string;
     name: string;
     numberPhone: String;
@@ -11,7 +12,8 @@ export interface IBook {
     status: string;
 }
 
-const BookSchema = new Schema<IBook>({
+export const BookingSchema = new Schema<IBooking>({
+    brandId: { type: mongoose.Schema.Types.ObjectId },
     bookCode: { type: String, required: true },
     name: { type: String, required: true },
     numberPhone: { type: String, required: true },
@@ -22,19 +24,19 @@ const BookSchema = new Schema<IBook>({
     status: { type: String, required: true },
 }, { _id: true, timestamps: true });
 
-
 export interface IProductBrand {
     name: string;
     amount: number;
     type: string;
+    description: string;
 }
 
-const ProductBrandSchema = new Schema<IProductBrand>({
+export const ProductBrandSchema = new Schema<IProductBrand>({
     name: { type: String, required: true },
     amount: { type: Number, required: true },
     type: { type: String, required: true },
+    description: { type: String, required: true }
 });
-
 
 export interface IBrand {
     nameBrand: string;
@@ -43,5 +45,5 @@ export interface IBrand {
 
 export const BrandSchema = new Schema({
     nameBrand: { type: String, required: true },
-    product: { type: ProductBrandSchema, default: null }
+    product: { type: [ProductBrandSchema], default: null }
 }, { _id: true, timestamps: true });

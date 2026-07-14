@@ -1,48 +1,43 @@
-import { IEmailInputDTO } from "../../../domain/dtos/email_input.dto";
 import { IOrderInputDTO } from "../../../domain/dtos/order_input.dto";
 import FindOrderUsecase from "../../../usecase/find_order_usecase";
 import OrderUsecase from "../../../usecase/order_usercase";
-import { IAddressDelivery, IAddressTakeGoods, IOrder, IPayment, IProduct } from "../../../data/model/order_model";
 import { Request, Response } from 'express';
-import { z } from 'zod';
-import Order, { AddressDelivery, AddressTakeGoods, Payment, Product } from "../../../domain/entities/order.entity";
+import { success, z, ZodError } from 'zod';
 
 const OrderModelSchema: z.ZodType<IOrderInputDTO> = z.object({
-    orderCode: z.string(),
-    statusDelivery: z.string(),
+    email: z.string(),
+    order_code: z.string(),
+    status_delivery: z.string(),
     product: z.object({
-        nameProduct: z.string(),
-        typeProduct: z.string(),
+        name_product: z.string(),
+        type_product: z.string(),
         amount: z.number().positive(),
         width: z.number().positive(),
         height: z.number().positive(),
         weight: z.number().positive(),
         length: z.number().positive()
     }),
-    addressTakeGoods: z.object({
+    address_take_goods: z.object({
         method: z.string(),
         address: z.string(),
         scope: z.string()
     }),
-    addressDelivery: z.object({
+    address_delivery: z.object({
         method: z.string(),
         address: z.string(),
         scope: z.string()
     }),
     payment: z.object({
-        typePayment: z.string(),
-        stepPayment: z.number().int()
+        type_payment: z.string(),
+        step_payment: z.number()
     })
-})
-
-const EmailSchema: z.ZodType<IEmailInputDTO> = z.object({
-    email: z.string()
 }).strict();
 
 
 export default class OrderController {
     private readonly orderUsecase: OrderUsecase;
     private readonly findOrderUsecase: FindOrderUsecase;
+
     constructor(orderUseCase: OrderUsecase, findOrderUsecase: FindOrderUsecase) {
         this.orderUsecase = orderUseCase
         this.findOrderUsecase = findOrderUsecase
@@ -50,93 +45,12 @@ export default class OrderController {
 
     public async saveOrder(req: Request, res: Response) {
         try {
-            /*  const { orderCode, statusDelivery, statusPickTime, product, addressTakeGoods, addressDelivery, payment } = req.body as OrderRequestBody;
- 
-             const normalizedProduct: RequestProduct = {
-                 ...(product ?? {}),
-                 index: product?.index ?? 0
-             }
- 
-             const normalizedAddressTakeGoods = {
-                 method: addressTakeGoods?.method || addressTakeGoods?.methodAddressTakeGoods || "",
-                 address: addressTakeGoods?.address || addressTakeGoods?.addressAddressTakeGoods || "",
-                 scope: addressTakeGoods?.scope || addressTakeGoods?.scopeAddressTakeGoods || ""
-             }
- 
-             const normalizedAddressDelivery = {
-                 method: addressDelivery?.method || addressDelivery?.methodDelivery || "",
-                 address: addressDelivery?.address || addressDelivery?.addressDelivery || "",
-                 scope: addressDelivery?.scope || addressDelivery?.scopeDelivery || ""
-             }
- 
-             const missingFields: string[] = [];
-             if (!orderCode) missingFields.push('orderCode');
-             if (!statusDelivery) missingFields.push('statusDelivery');
-             if (typeof statusPickTime !== 'boolean') missingFields.push('statusPickTime');
-             if (!product) missingFields.push('product');
-             if (!normalizedProduct.nameProduct) missingFields.push('product.nameProduct');
-             if (!normalizedProduct.typeProduct) missingFields.push('product.typeProduct');
-             if (normalizedProduct.amount === undefined || normalizedProduct.amount === null) missingFields.push('product.amount');
-             if (normalizedProduct.width === undefined || normalizedProduct.width === null) missingFields.push('product.width');
-             if (normalizedProduct.height === undefined || normalizedProduct.height === null) missingFields.push('product.height');
-             if (normalizedProduct.weight === undefined || normalizedProduct.weight === null) missingFields.push('product.weight');
-             if (normalizedProduct.length === undefined || normalizedProduct.length === null) missingFields.push('product.length');
-             if (normalizedAddressTakeGoods.method === undefined || normalizedAddressTakeGoods.method === null || normalizedAddressTakeGoods.method === "") missingFields.push('addressTakeGoods.method');
-             if (normalizedAddressTakeGoods.address === undefined || normalizedAddressTakeGoods.address === null || normalizedAddressTakeGoods.address === "") missingFields.push('addressTakeGoods.address');
-             if (normalizedAddressTakeGoods.scope === undefined || normalizedAddressTakeGoods.scope === null || normalizedAddressTakeGoods.scope === "") missingFields.push('addressTakeGoods.scope');
-             if (normalizedAddressDelivery.method === undefined || normalizedAddressDelivery.method === null || normalizedAddressDelivery.method === "") missingFields.push('addressDelivery.method');
-             if (normalizedAddressDelivery.address === undefined || normalizedAddressDelivery.address === null || normalizedAddressDelivery.address === "") missingFields.push('addressDelivery.address');
-             if (normalizedAddressDelivery.scope === undefined || normalizedAddressDelivery.scope === null || normalizedAddressDelivery.scope === "") missingFields.push('addressDelivery.scope');
-             if (!payment) missingFields.push('payment');
-             if (!payment?.typePayment) missingFields.push('payment.typePayment');
-             if (payment?.stepPayment === undefined || payment?.stepPayment === null) missingFields.push('payment.stepPayment');
- 
-             if (missingFields.length) {
-                 return res.status(400).json({
-                     error: 'Missing required fields',
-                     missingFields
-                 })
-             }
- 
-             const productModelData = new ProductModel(normalizedProduct);
- 
-             const addressTakeGoodsData = new AddressTakeGoodsModel(normalizedAddressTakeGoods);
- 
-             const addressDeliveryData = new AddressDeliveryModel(normalizedAddressDelivery);
- 
-             const paymentData = new PaymentModel(payment);
- 
-             const orderModelData = new OrderModel({
-                 orderCode,
-                 statusDelivery,
-                 statusPickTime,
-                 product: productModelData,
-                 addressTakeGoods: addressTakeGoodsData,
-                 addressDelivery: addressDeliveryData,
-                 payment: paymentData
-             }); */
-
-            const safeEmailData = EmailSchema.parse(req.body);
 
             const safeModelData = OrderModelSchema.parse(req.body);
 
-            const productModelData = new Product(safeModelData.product);
-            const addressTakeGoodsData = new AddressTakeGoods(safeModelData.addressTakeGoods);
-            const addressDeliveryData = new AddressDelivery(safeModelData.addressDelivery);
-            const paymentData = new Payment(safeModelData.payment);
+            const result = await this.orderUsecase.execute(safeModelData);
 
-            const orderModelData = new Order({
-                orderCode: safeModelData.orderCode,
-                statusDelivery: safeModelData.statusDelivery,
-                product: productModelData,
-                addressTakeGoods: addressTakeGoodsData,
-                addressDelivery: addressDeliveryData,
-                payment: paymentData
-            });
-
-            const isSuccess = await this.orderUsecase.execute(safeEmailData, orderModelData);
-
-            return res.status(200).json({ isSuccess: isSuccess, status: "Đặt hàng thành công" });
+            return res.status(result.status).json({ data: { success: result.success, message: result.message } });
         } catch (err) {
             if (err instanceof z.ZodError) {
                 const formattedErrors = err.issues.map(e => ({
@@ -148,24 +62,32 @@ export default class OrderController {
                     status: "Validation Failed",
                     errors: formattedErrors
                 });
-            }
-
-            // Bắt các lỗi runtime hệ thống khác
-            return res.status(400).json({
-                status: "Error",
-                message: err instanceof Error ? err.message : "Unknown error",
-                details: err
+            } console.error("System Error:", err);
+            return res.status(500).json({
+                status: "Internal Server Error",
+                message: "Đã xảy ra lỗi hệ thống."
             });
         }
     }
 
     public async findOrder(req: Request, res: Response) {
         try {
-            const { orderCode } = req.body;
-            const isSuccess = await this.findOrderUsecase.execute(orderCode);
-            return res.status(200).json({ isSuccess: true, status: " thành công" });
-        } catch (err) {
-            return res.status(400).json({ error: err });
+            const { order_code } = req.body;
+            const result = await this.findOrderUsecase.execute(order_code);
+            return res.status(result.status).json({ data: result.data, message: result.message });
+        } catch (err: any) {
+            if (err.name === "ZodError" || err instanceof ZodError) {
+                return res.status(400).json({
+                    error: "Dữ liệu yêu cầu không hợp lệ",
+                    details: err.errors
+                });
+            }
+
+            if (err.message && err.message.includes("Không tìm thấy đơn hàng")) {
+                return res.status(404).json({
+                    error: err.message
+                });
+            }
         }
     }
 }

@@ -1,6 +1,14 @@
 import { type Request, type Response } from "express";
 import UpdatePickTimeUsecase from "../../../usecase/update_pick_time.js";
 import PickTimeUsecase from "../../../usecase/pick_time_use_case.js";
+import { z } from "zod";
+import { IPickTimeInputDTO } from "../../../domain/dtos/pick-time.dto.js";
+
+const PickTimeSchema: z.ZodType<IPickTimeInputDTO> = z.object({
+    order_code: z.string(),
+    pick_time: z.string(),
+    status_pick_time: z.string()
+}).strict();
 
 export default class PickTimeController {
     private readonly pickTimeUsecase: PickTimeUsecase;
@@ -12,13 +20,13 @@ export default class PickTimeController {
     }
 
     public async get_pick_time(req: Request, res: Response) {
-        await this.pickTimeUsecase.execute();
-        return res.status(200).json({ data: { isSuccess: true, status: "Lấy danh sách đặt lịch trong ngày hôm thành công" } });
+        const result = await this.pickTimeUsecase.execute();
+        return res.status(result.status).json({ success: result.success, message: result.message });
     }
 
     public async update_pick_time(req: Request, res: Response) {
-        const { orderCode, pick_time, status_pick_time } = req.body;
-        const isSuccess = await this.updatePickTimeUsecase.execute(orderCode, pick_time, status_pick_time);
-        return res.status(200).json({ data: { isSuccess: isSuccess, status: "Cập nhật trạng thái gửi đơn hàng thành công" } });
+        const safePickTimeData = PickTimeSchema.parse(req.body);
+        const result = await this.updatePickTimeUsecase.execute(safePickTimeData);
+        return res.status(result.status).json({ success: result.success, message: result.message });
     }
 }

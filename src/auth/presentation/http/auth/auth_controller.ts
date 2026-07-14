@@ -1,44 +1,48 @@
 import { Request, Response } from 'express'
 import SignUpUsecase from "../../../usecase/signup_usecase";
-import SignInScopeUsecase from '../../../usecase/signin_scope_usecase';
-import LogOutScopeUseCase from '../../../usecase/logout_scope_usecase';
+import SignInScopeUsecase from '../../../usecase/signin_usecase';
+import LogOutScopeUseCase from '../../../usecase/logout_usecase';
 import ITokenService from '../../../domain/services/itoken_service';
 import { z } from 'zod';
 import { IRegisterInputDTO } from '../../../domain/dtos/register_input.dto';
+import LogOutUseCase from '../../../usecase/logout_usecase';
+import SignInUsecase from '../../../usecase/signin_usecase';
 
 export const UserModelSchema: z.ZodType<IRegisterInputDTO> = z.object({
     name: z.string(),
     email: z.string(),
-    nameCompany: z.string(),
-    numberPhone: z.string(),
+    name_company: z.string(),
+    number_phone: z.string(),
     type: z.string(),
     role: z.string()
 }).strict();
 
 export default class AuthController {
-    private readonly signinScopeUseCase: SignInScopeUsecase;
+    private readonly signinUseCase: SignInUsecase;
     private readonly signupUseCase: SignUpUsecase;
-    private readonly logoutScopeUsecase: LogOutScopeUseCase;
+    private readonly logoutUsecase: LogOutUseCase;
     private readonly tokenService: ITokenService;
 
-    constructor(signinScopeUseCase: SignInScopeUsecase, signupUseCase: SignUpUsecase, logoutScopeUseCase: LogOutScopeUseCase, tokenService: ITokenService) {
-        this.signinScopeUseCase = signinScopeUseCase
+    constructor(signinScopeUseCase: SignInUsecase, signupUseCase: SignUpUsecase, logoutUseCase: LogOutUseCase, tokenService: ITokenService) {
+        this.signinUseCase = signinScopeUseCase
         this.signupUseCase = signupUseCase
-        this.logoutScopeUsecase = logoutScopeUseCase
+        this.logoutUsecase = logoutUseCase
         this.tokenService = tokenService
     }
 
-    public async signinScope(req: Request, res: Response) {
+    public async signin(req: Request, res: Response) {
         try {
-            const { email } = req.body;
+            const { email, statusLogin } = req.body;
 
-            const isLogin = await this.signinScopeUseCase.execute(email);
+            const result = await this.signinUseCase.execute(email, statusLogin);
 
-            return res.status(200).json({ data: isLogin });
-
+            return res.status(result.status).json({
+                data: {
+                    success: result.success, message: result.message
+                }
+            });
         } catch (error: any) {
-            console.error("Controller Caught Error:", error);
-            return res.status(400).json({ error: error.message || error });
+            return res.status(500).json({ error: "Lỗi hệ thống nghiêm trọng." });
         }
     }
 
@@ -46,24 +50,31 @@ export default class AuthController {
         try {
             const safeAuthData = UserModelSchema.parse(req.body);
 
-            const isSuccess = await this.signupUseCase.execute(safeAuthData);
+            const result = await this.signupUseCase.execute(safeAuthData);
 
-            return res.status(200).json({ isSuccess: isSuccess, message: "Đăng ký thương hiệu thành công" });
+            return res.status(result.status).json({
+                data: {
+                    success: result.success, message: result.message
+                }
+            });
         } catch (error: any) {
-            console.error("Controller Caught Error:", error);
             return res.status(400).json({ error: error.message || error });
         }
     }
 
-    public async logoutScope(req: Request, res: Response) {
+    public async logout(req: Request, res: Response) {
         try {
-            const { email } = req.body;
-            const isLogout = await this.logoutScopeUsecase.execute(email);
-            return res.status(200).json({ isLogout: isLogout });
+            const { email, statusLogin } = req.body;
+
+            const result = await this.logoutUsecase.execute(email, statusLogin);
+
+            return res.status(result.status).json({
+                data: {
+                    success: result.success, message: result.message
+                }
+            });
         } catch (error: any) {
-            console.error("Controller Caught Error:", error);
             return res.status(400).json({ error: error.message || error });
         }
     }
-
 }

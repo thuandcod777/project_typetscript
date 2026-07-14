@@ -11,8 +11,8 @@ export default class BrandRouter {
 
         let controller = BrandRouter.composeController(brandRepository);
 
-        router.get('/getbrand', (req: Request, res: Response) => controller.get_brand(req, res));
-        router.post('/bookbrand', (req: Request, res: Response) => controller.book_brand(req, res));
+        router.get('/getallbrand', (req: Request, res: Response) => controller.get_brand(req, res));
+        router.post('/booking', (req: Request, res: Response) => controller.booking(req, res));
         router.post('/savebrand', (req: Request, res: Response) => controller.save_brand(req, res));
 
         return router;

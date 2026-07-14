@@ -1,51 +1,69 @@
-import { email, z } from "zod";
+import { success, z } from "zod";
 import ScopeUsecase from "../../../usecase/scope_usecase";
 import { Request, Response } from 'express';
-import Scope from "../../../domain/entities/scope.entity";
-import { ScopeCollection } from "../../../domain/entities/scope-collection.entity";
+import { IGeoJsonPoint } from "../../../domain/entities/scope.entity";
+import { IScopeInputDTO } from "../../../domain/dtos/scope_input.dto";
 
-
-const geoJsonPointSchema = z.object({
+const geoJsonPointSchema: z.ZodType<IGeoJsonPoint> = z.object({
     type: z.string().refine((val) => val === 'Point', {
         message: "Type phải là 'Point'"
-    }),
+    }) as any,
     coordinates: z.tuple([z.number().min(-180).max(180),
     z.number().min(-90).max(90)])
-})
+}).strict();
 
 const scopeItemSchema = z.object({
     is_scope: z.boolean().default(true),
     address: z.string().trim().default(""),
     location: geoJsonPointSchema
-});
+}).strict();
 
-const scopeCollectionSchema = z.object({
+const scopeCollectionSchema: z.ZodType<IScopeInputDTO> = z.object({
+    email: z.string(),
+    step_contract: z.number(),
+    scopes: z.array(scopeItemSchema),
     is_success: z.boolean().default(false),
-    scopes: z.array(scopeItemSchema)
-});
+    is_verify_scope: z.boolean().default(false)
+}).strict();
 
-type IScopeModel = z.infer<typeof scopeCollectionSchema>;
 
 export default class ScopeController {
     private readonly scopeUsecase: ScopeUsecase;
+
     constructor(scopeUsecase: ScopeUsecase) {
         this.scopeUsecase = scopeUsecase;
     }
 
     public async saveScope(req: Request, res: Response) {
         try {
-            const validatedBody: IScopeModel = await scopeCollectionSchema.parseAsync(req.body);
+            const safeScopeData = scopeCollectionSchema.parse(req.body);
 
-            const rawScopes = validatedBody.scopes;
+            const result = await this.scopeUsecase.execute(safeScopeData);
 
-            const scopeModels: ScopeCollection[] = rawScopes.map(item => ScopeCollection.fromJson(item as any));
-
-            const scope = await this.scopeUsecase.execute("m.q.thuan777@gmail.com", scopeModels);
-
-            return res.status(200).json({ scope: scope });
+            return res.status(result.status).json({
+                data: {
+                    success: result.success,
+                    message: result.message
+                }
+            });
 
         } catch (err) {
-            return res.status(400).json({ error: err });
+            if (err instanceof z.ZodError) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Dữ liệu gửi lên không hợp lệ",
+                    details: err.issues.map(e => ({
+                        field: e.path.join('.'),
+                        message: e.message
+                    }))
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                error: "Internal Server Error",
+                message: err instanceof Error ? err.message : String(err)
+            });
         }
     }
 }

@@ -1,8 +1,9 @@
 
 export interface IBookBrandInputDTO {
+    nameBrand: string;
     bookCode: string;
     name: string;
-    numberPhone: number;
+    numberPhone: string;
     address: string;
     nameProduct: string;
     amount: number;

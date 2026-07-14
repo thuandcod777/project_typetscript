@@ -2,30 +2,29 @@ import type IPickTimeRepository from "../../domain/services/ipicktime_repository
 import type { Mongoose } from "mongoose";
 import { PickTimeSchema, type IPickTime } from "../model/pick_time_model";
 import { IOrder, OrderSchema } from "../model/order_model";
-import { IGroupPickTime, PickTime } from "../../domain/entities/pick_time.entity";
+import { IGroupPickTime, IPickTimeJSON, PickTime } from "../../domain/entities/pick-time.entity";
+import { IPickTimeInputDTO } from "../../domain/dtos/pick-time.dto";
 
 export default class PickTimeRepository implements IPickTimeRepository {
 
     constructor(private readonly client: Mongoose) { }
 
-
-
     public async get_pick_time(): Promise<IGroupPickTime | []> {
 
-        const doc = this.client.model<IPickTime>('PickTime', PickTimeSchema);
 
+        const orderModel = this.client.model<IOrder>('Order', OrderSchema);
         const startOfToDay = new Date();
         startOfToDay.setHours(0, 0, 0, 0);
 
         const endOfToDay = new Date();
         endOfToDay.setHours(23, 59, 59, 999);
 
-        const dataPickTime = await doc.find({
-            createdAt: {
+        const dataPickTime = await orderModel.find({
+            "status_pick_time.createdAt": {
                 $gte: startOfToDay,
                 $lte: endOfToDay
             }
-        }).lean();
+        }).select('status_pick_time.pick_time');
 
         if (!dataPickTime || dataPickTime.length === 0) {
             return [];
@@ -72,7 +71,7 @@ export default class PickTimeRepository implements IPickTimeRepository {
         });
 
         dataPickTime.forEach((current: any) => {
-            const dbTime = current.pick_time;
+            const dbTime = current.status_pick_time?.pick_time;
             if (groupData[dbTime]) {
                 // Giới hạn tối đa 5 items cho mỗi khung giờ theo logic trước đó của bạn
                 if (groupData[dbTime].items.length < 5) {
@@ -82,42 +81,35 @@ export default class PickTimeRepository implements IPickTimeRepository {
             }
         });
 
+        console.log(groupData);
+
         return groupData;
     }
 
-    public async update_status_pick_time(orderCode: string, pickTime: string, statusPickTime: string): Promise<boolean> {
+    public async update_status_pick_time(pickTimeData: IPickTimeInputDTO): Promise<boolean> {
         const orderModel = this.client.model<IOrder>('Order', OrderSchema);
 
-        const pickTimeModel = this.client.model<IPickTime>('PickTime', PickTimeSchema);
+        try {
+            const result = await orderModel.findOneAndUpdate({ order_code: pickTimeData.order_code }, {
+                $set: {
+                    status_pick_time: {
+                        pick_time: pickTimeData.pick_time,
+                        statusPickTime: pickTimeData.status_pick_time
+                    }
+                }
+            }, { new: true });
 
+            if (!result) {
+                console.warn(`[DB Warn] Không tìm thấy đơn hàng với mã: ${pickTimeData.order_code}`);
+                return false;
+            }
 
-        const order = await orderModel.findOne({ orderCode: orderCode });
+            return true;
 
-        if (!order) {
-            console.error(`=> [DB Error] Không tìm thấy đơn hàng với mã: ${orderCode}`);
+        } catch (error) {
+            console.error(`[DB Error] Lỗi cập nhật session:`, error);
             return false;
         }
-
-        const dbSession = await this.client.startSession();
-        dbSession.startTransaction();
-
-        const pickTimeId = order?.statusPickTime;
-        const validPickTime = pickTime || new Date().toISOString();
-        if (!pickTimeId) {
-            const sessionData = await pickTimeModel.create([{ pickTime: validPickTime, statusPickTime: statusPickTime }], { session: dbSession });
-
-            order.statusPickTime = sessionData[0]._id as any;
-        }
-
-        await order.save({ session: dbSession });
-
-        await dbSession.commitTransaction();
-        console.log(`=> [DB Success] Đã tạo mới Session cho User ID: ${order}`);
-        return true;
-
-
     }
-
-
 
 }

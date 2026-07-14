@@ -5,10 +5,11 @@ export interface IUserJSON {
     id: string;
     name: string;
     email: string;
-    nameCompany: string;
-    numberPhone: string;
+    name_company: string;
+    number_phone: string;
     type: string;
     role: string;
+    otp: string | null;
     contract: IContractJSON | null;
     session: IAuthSessionJSON | null;
 }
@@ -17,25 +18,28 @@ export default class User {
     readonly id: string | null;
     readonly name: string;
     readonly email: string;
-    readonly nameCompany: string;
-    readonly numberPhone: string;
+    readonly name_company: string;
+    readonly number_phone: string;
     readonly type: string;
     readonly role: string;
-    readonly contract: Contract | null;
     readonly session: AuthSession | null;
+    readonly otp: string | null;
+    readonly contract: Contract | null;
 
-    constructor({ id = null, email = "", name = "", nameCompany = "", numberPhone = "", type = "", role = "", contract = null, session = null }: {
-        id: string | null, email: string, name: string, nameCompany: string, numberPhone: string, type: string, role: string, contract: Contract | null, session: AuthSession | null
+
+    constructor({ id = null, email = "", name = "", name_company = "", number_phone = "", type = "", role = "", session = null, otp = null, contract = null }: {
+        id: string | null, email: string, name: string, name_company: string, number_phone: string, type: string, role: string, session: AuthSession | null, otp: string | null, contract: Contract | null
     }) {
         this.id = id;
         this.name = name;
         this.email = email;
-        this.nameCompany = nameCompany;
-        this.numberPhone = numberPhone;
+        this.name_company = name_company;
+        this.number_phone = number_phone;
         this.type = type;
         this.role = role;
-        this.contract = contract;
         this.session = session;
+        this.otp = otp;
+        this.contract = contract;
     }
 
     static fromJson(json: IUserJSON): User {
@@ -43,12 +47,14 @@ export default class User {
             id: json.id,
             name: json.name,
             email: json.email,
-            nameCompany: json.nameCompany,
-            numberPhone: json.numberPhone,
+            name_company: json.name_company,
+            number_phone: json.number_phone,
             type: json.type,
             role: json.role,
+            session: json.session ? AuthSession.fromJson(json.session) : null,
+            otp: json.otp ?? null,
             contract: json.contract ? Contract.fromJson(json.contract) : null,
-            session: json.session ? AuthSession.fromJson(json.session) : null
+
         });
     }
 }

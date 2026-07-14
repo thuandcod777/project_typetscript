@@ -1,15 +1,16 @@
 export interface IOrderInputDTO {
-    orderCode: string;
-    statusDelivery: string;
+    email: string;
+    order_code: string;
+    status_delivery: string;
     product: IProductInputDTO;
-    addressTakeGoods: IAddressTakeGoodsInputDTO;
-    addressDelivery: IAddressDeliveryInputDTO;
+    address_take_goods: IAddressTakeGoodsInputDTO;
+    address_delivery: IAddressDeliveryInputDTO;
     payment: IPaymentInputDTO;
 }
 
 export interface IProductInputDTO {
-    nameProduct: string;
-    typeProduct: string;
+    name_product: string;
+    type_product: string;
     amount: number;
     width: number;
     height: number;
@@ -30,8 +31,8 @@ export interface IAddressDeliveryInputDTO {
 }
 
 export interface IPaymentInputDTO {
-    typePayment: string;
-    stepPayment: number;
+    type_payment: string;
+    step_payment: number;
 }
 
 

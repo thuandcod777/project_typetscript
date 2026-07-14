@@ -1,8 +1,9 @@
 
-interface IBookJSON {
+interface IBookingJSON {
+    brandId: string;
     bookCode: string;
     name: string;
-    numberPhone: Number;
+    numberPhone: string;
     address: string;
     nameProduct: string;
     amount: number;
@@ -10,17 +11,19 @@ interface IBookJSON {
     status: string;
 }
 
-export class Book {
+export class Booking {
+    brandId: string;
     bookCode: string;
     name: string;
-    numberPhone: Number;
+    numberPhone: string;
     address: string;
     nameProduct: string;
     amount: number;
     type: string;
     status: string;
 
-    constructor({ bookCode = "", name = "", numberPhone = 0, address = "", nameProduct = "", amount = 0, type = "", status = "" }: Partial<IBookJSON> = {}) {
+    constructor({ brandId = "", bookCode = "", name = "", numberPhone = "", address = "", nameProduct = "", amount = 0, type = "", status = "" }: Partial<IBookingJSON> = {}) {
+        this.brandId = brandId;
         this.bookCode = bookCode;
         this.name = name;
         this.numberPhone = numberPhone;
@@ -31,8 +34,9 @@ export class Book {
         this.status = status;
     }
 
-    static fromJson(json: IBookJSON): Book {
-        return new Book({
+    static fromJson(json: IBookingJSON): Booking {
+        return new Booking({
+            brandId: json.brandId,
             bookCode: json.bookCode,
             name: json.name,
             numberPhone: json.numberPhone,
@@ -49,12 +53,12 @@ export class ProductBrand {
     name: string;
     amount: number;
     type: string;
-
-    constructor(name: string = '', amount: number = 0, type: string = '',) {
+    description: string;
+    constructor(name: string = '', amount: number = 0, type: string = '', description: string = '') {
         this.name = name;
         this.amount = amount;
         this.type = type;
-
+        this.description = description;
     }
 
     // Chuyển đổi dữ liệu JSON từ Database/Mongoose thành Object Class
@@ -64,7 +68,7 @@ export class ProductBrand {
             json.name || '',
             json.amount || 0,
             json.type || '',
-
+            json.description || ''
         );
     }
 
@@ -73,7 +77,8 @@ export class ProductBrand {
         return {
             name: this.name,
             amount: this.amount,
-            type: this.type
+            type: this.type,
+            description: this.description
         };
     }
 }

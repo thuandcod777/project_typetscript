@@ -1,12 +1,17 @@
-import { IOrderCodeInputDTO } from "../domain/dtos/order_code_input.dto";
+import Order from "../domain/entities/order.entity";
+import { ResponseDto } from "../domain/entities/response.entity";
 import IOrderRepository from "../domain/services/iorder_repository";
 
 export default class FindOrderUsecase {
     constructor(private orderRepository: IOrderRepository) { }
-    public async execute(orderCode: IOrderCodeInputDTO): Promise<boolean> {
+    public async execute(orderData: string): Promise<ResponseDto> {
 
-        const order = await this.orderRepository.findOrder(orderCode);
+        const data = await this.orderRepository.findOrder(orderData);
 
-        return true;
+        if (!data) {
+            return ResponseDto.failure('Tìm kiếm đơn hàng thất bại');
+        }
+
+        return ResponseDto.success('Tìm kiếm đơn hàng thành công', data);
     }
 }

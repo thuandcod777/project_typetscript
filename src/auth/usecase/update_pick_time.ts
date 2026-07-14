@@ -1,22 +1,25 @@
+import { IPickTimeInputDTO } from "../domain/dtos/pick-time.dto";
+import { ResponseDto } from "../domain/entities/response.entity";
 import IPickTimeRepository from "../domain/services/ipicktime_repository";
 
 export default class UpdatePickTimeUsecase {
     constructor(private pickTimeRepository: IPickTimeRepository) { }
-    public async execute(orderCode: string, pick_time: string, status_pick_time: string): Promise<boolean> {
+    public async execute(pickTimeData: IPickTimeInputDTO): Promise<ResponseDto> {
+
         const dataPickTime = await this.pickTimeRepository.get_pick_time();
 
-        if (dataPickTime && !Array.isArray(dataPickTime) && dataPickTime[pick_time]) {
-            if (dataPickTime[pick_time].count >= 5) {
-                return false; // Khung giờ đã đầy, không cho đặt tiếp
+        if (dataPickTime && !Array.isArray(dataPickTime) && dataPickTime[pickTimeData.pick_time]) {
+            if (dataPickTime[pickTimeData.pick_time].count >= 5) {
+                return ResponseDto.failure('Không còn trống lịch vận chuyển');
             }
         }
 
-        const isSaved = await this.pickTimeRepository.update_status_pick_time(orderCode, pick_time, status_pick_time);
+        const isSaved = await this.pickTimeRepository.update_status_pick_time(pickTimeData);
 
         if (!isSaved) {
-            return false;
+            return ResponseDto.failure('Cập nhật lịch hẹn thất bại');
         }
 
-        return true;
+        return ResponseDto.success('Cập nhật lịch hẹn thành công');
     }
 }

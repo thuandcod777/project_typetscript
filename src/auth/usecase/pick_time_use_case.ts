@@ -1,14 +1,17 @@
-import type PickTimeRepository from "../data/repository/pick_time_repository.js";
-import type IPickTimeRepository from "../domain/services/ipicktime_repository.js";
+import { ResponseDto } from "../domain/entities/response.entity";
+import type IPickTimeRepository from "../domain/services/ipicktime_repository";
 
 export default class PickTimeUsecase {
     constructor(private picktimeRepository: IPickTimeRepository) { }
 
-    public async execute(): Promise<boolean> {
+    public async execute(): Promise<ResponseDto> {
         const data = await this.picktimeRepository.get_pick_time();
         if (!data || (Array.isArray(data) && data.length === 0)) {
-            return false;
+
+            return ResponseDto.failure('Lấy danh sách đặt lịch thất bại');
+
         }
-        return true;
+
+        return ResponseDto.success('Lấy danh sách đặt lịch thành công');
     }
 }

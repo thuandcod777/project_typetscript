@@ -1,13 +1,17 @@
-import { IEmailInputDTO } from "../domain/dtos/email_input.dto";
 import { IOrderInputDTO } from "../domain/dtos/order_input.dto";
+import { ResponseDto } from "../domain/entities/response.entity";
 import IOrderRepository from "../domain/services/iorder_repository";
 
 export default class OrderUsecase {
     constructor(private orderRepository: IOrderRepository) { }
-    public async execute(email: IEmailInputDTO, orderData: IOrderInputDTO): Promise<boolean> {
+    public async execute(orderData: IOrderInputDTO): Promise<ResponseDto> {
 
-        const order = await this.orderRepository.saveOrder(email, orderData);
+        const order = await this.orderRepository.saveOrder(orderData);
 
-        return true;
+        if (!order) {
+            ResponseDto.failure('Đăng ký đơn hàng thất bại');
+        }
+
+        return ResponseDto.success('Đăng ký đơn hàng thành công');
     }
 }

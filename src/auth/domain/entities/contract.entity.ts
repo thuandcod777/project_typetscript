@@ -6,35 +6,39 @@ import Scope, { IScopeJSON } from "./scope.entity";
 export type StatusContract = 'registered' | 'note scope' | 'agree' | 'finished';
 
 export interface IContractJSON {
-    contractCode: string;
-    stepContract: number;
-    contractDetails: ContractDetails | null;
+    contract_code: string;
+    step_contract: number;
+    contract_details: ContractDetails | null;
     scope: IScopeJSON | null;
-    contractPdf: IContractPdfJSON | null;
+    contract_pdf: IContractPdfJSON | null;
+    is_success: boolean;
 }
 
 export class Contract {
-    contractCode: string;
-    stepContract: number;
-    contractDetails: ContractDetails | null;
+    contract_code: string;
+    step_contract: number;
+    contract_details: ContractDetails | null;
     scope: Scope | null;
-    contractPdf: ContractPdf | null;
+    contract_pdf: ContractPdf | null;
+    is_success: boolean;
 
-    constructor({ contractCode = '', stepContract = 0, contractDetails = new ContractDetails(), scope = new Scope(), contractPdf = new ContractPdf() }: Partial<Contract> = {}) {
-        this.contractCode = contractCode;
-        this.stepContract = stepContract;
-        this.contractDetails = contractDetails;
+    constructor({ contract_code = '', step_contract = 0, contract_details = new ContractDetails(), scope = new Scope(), contract_pdf = new ContractPdf(), is_success = false }: Partial<Contract> = {}) {
+        this.contract_code = contract_code;
+        this.step_contract = step_contract;
+        this.contract_details = contract_details;
         this.scope = scope;
-        this.contractPdf = contractPdf;
+        this.contract_pdf = contract_pdf;
+        this.is_success = is_success;
     }
 
     static fromJson(json: IContractJSON): Contract {
         return new Contract({
-            contractCode: json.contractCode,
-            stepContract: json.stepContract,
-            contractDetails: json.contractDetails ? ContractDetails.fromJson(json.contractDetails) : null,
+            contract_code: json.contract_code,
+            step_contract: json.step_contract,
+            contract_details: json.contract_details ? ContractDetails.fromJson(json.contract_details) : null,
             scope: json.scope ? Scope.fromJson(json.scope) : null,
-            contractPdf: json.contractPdf ? ContractPdf.fromJson(json.contractPdf) : null
+            contract_pdf: json.contract_pdf ? ContractPdf.fromJson(json.contract_pdf) : null,
+            is_success: json.is_success
         })
     }
 }
