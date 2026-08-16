@@ -48,17 +48,17 @@ export default class CompositionRoot {
     }
 
     public static authRouter() {
-        const repository = new AuthRepository(this.client);
-        const tokenService = new JwtTokenService(process.env.PRIVATE_KEY as string);
-        const redisService = new RedisRepository(this.redisClient);
-        return AuthRouter.configure(repository, redisService, tokenService);
+        const authRepository = new AuthRepository(this.client);
+        const contractRepository = new ContractRepository(this.client);
+        return AuthRouter.configure(authRepository, contractRepository);
     }
 
 
     public static orderRouter() {
-        const repository = new OrderRepository(this.client);
+        const authRepository = new AuthRepository(this.client);
+        const orderRepository = new OrderRepository(this.client);
 
-        return OrderRouter.configure(repository);
+        return OrderRouter.configure(authRepository, orderRepository);
     }
 
     public static scopeRouter() {
@@ -78,7 +78,8 @@ export default class CompositionRoot {
     }
 
     public static contractRouter() {
-        const repository = new ContractRepository(this.client);
-        return ContractRouter.configure(repository);
+        const authRepository = new AuthRepository(this.client);
+        const contractRepository = new ContractRepository(this.client);
+        return ContractRouter.configure(authRepository, contractRepository);
     }
 }

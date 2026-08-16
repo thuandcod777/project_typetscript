@@ -1,16 +1,13 @@
 import { z } from "zod";
-import CreateContractUsecase from "../../../usecase/verify_contract_usecase";
 import { Request, Response } from 'express';
-import VerifyContractUsecase from "../../../usecase/create_contract_usecase";
 import { IContractDetailsInputDTO } from "../../../domain/dtos/contract_details_input.dto";
 import UploadPdfUsecase from "../../../usecase/upload_pdf_usecase";
 import { IMulterFileDTO, IUploadPdfDTO } from "../../../domain/dtos/pdf-input.dto";
 import { ICreateContractInputDTO } from "../../../domain/dtos/verify_contract_input";
 import GetContractUsecase from "../../../usecase/get_contract_usecase";
+import CreateContractUsecase from "../../../usecase/create_contract_usecase";
 
 const ContractDetailsSchema: z.ZodType<IContractDetailsInputDTO> = z.object({
-    email: z.string(),
-    step_contract: z.number(),
     number_contract: z.string(),
     name_client_a: z.string(),
     name_business_owner_b: z.string(),
@@ -28,7 +25,7 @@ const ContractDetailsSchema: z.ZodType<IContractDetailsInputDTO> = z.object({
     method_payment: z.string(),
 }).strict();
 
-const verifyContractSchema: z.ZodType<ICreateContractInputDTO> = z.object({
+const contractSchema: z.ZodType<ICreateContractInputDTO> = z.object({
     email: z.string(),
     contract_code: z.string(),
     step_contract: z.number()
@@ -57,13 +54,19 @@ const UploadPdfSchema: z.ZodType<IUploadPdfDTO> = z.object({
         }
         return val;
     }, z.object({
-        contract_code: z.string().min(1, "Mã hợp đồng không được để trống")
+        user_id: z.string().min(1, "Mã hợp đồng không được để trống")
     })),
     step_contract: z.coerce.number({ message: "Vui lòng nhập một số hợp lệ" }),
+    contract_details: z.preprocess((val) => {
+        if (typeof val === 'string') {
+            try { return JSON.parse(val); } catch { return val; }
+        } return val;
+    }, ContractDetailsSchema),
     contract_pdf: MulterFileSchema
 }).transform((data) => ({
-    contract_code: data.contract_data.contract_code,
+    user_id: data.contract_data.user_id,
     step_contract: data.step_contract,
+    contract_details: data.contract_details,
     contract_pdf: data.contract_pdf as IMulterFileDTO
 }));
 
@@ -71,73 +74,24 @@ const UploadPdfSchema: z.ZodType<IUploadPdfDTO> = z.object({
 export default class ContractController {
     private readonly createContractUsecase: CreateContractUsecase;
     private readonly getContractUsecase: GetContractUsecase;
-    private readonly verifyContractUsecase: VerifyContractUsecase;
     private readonly uploadContractUsecase: UploadPdfUsecase;
-    constructor(createContractUsecase: CreateContractUsecase, getContractUsecase: GetContractUsecase, verifyContractUsecase: VerifyContractUsecase, uploadContractUsecase: UploadPdfUsecase) {
+    constructor(createContractUsecase: CreateContractUsecase, getContractUsecase: GetContractUsecase, uploadContractUsecase: UploadPdfUsecase) {
         this.createContractUsecase = createContractUsecase,
             this.getContractUsecase = getContractUsecase,
-            this.verifyContractUsecase = verifyContractUsecase,
             this.uploadContractUsecase = uploadContractUsecase
     }
 
     public async createContract(req: Request, res: Response) {
-        const safeVerifyContract = verifyContractSchema.parse(req.body);
-        const result = await this.verifyContractUsecase.execute(safeVerifyContract);
+        const safeContractDetailsData = contractSchema.parse(req.body);
+
+        const result = await this.createContractUsecase.execute(safeContractDetailsData.email, safeContractDetailsData.contract_code, safeContractDetailsData.step_contract);
         return res.status(result.status).json({ data: { success: result.success, message: result.message } });
     }
 
     public async getContract(req: Request, res: Response) {
-
         const { email } = req.body;
         const result = await this.getContractUsecase.execute(email);
-        return res.status(result.status).json({ data: { contract: result.data, success: result.success, message: result.message } });
-    }
-
-    public async verifyContract(req: Request, res: Response) {
-        // const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-
-        // // 1. Kiểm tra file hợp lệ
-        // // if (!files || !files['contract_pdf'] || !files['contract_image']) {
-        // //     return res.status(400).json({ isSuccess: false, message: "Thiếu file PDF hoặc file Ảnh!" });
-        // // }
-        // if (!req.body.contractData) {
-        //     return res.status(400).json({ isSuccess: false, message: "Thiếu thông tin contractData!" });
-        // }
-
-        // const pdfFile = files!['contract_pdf'][0];
-
-        // // 2. Lấy dữ liệu Bytes (Buffer) của file PDF
-        // let pdfBuffer: Buffer;
-
-        // if (pdfFile.buffer) {
-        //     // Nếu cấu hình Multer dùng memoryStorage()
-        //     pdfBuffer = pdfFile.buffer;
-        // } else {
-        //     // Nếu cấu hình Multer dùng diskStorage() -> Phải đọc file vừa lưu từ ổ cứng lên thành Bytes
-        //     pdfBuffer = await fs.readFile(pdfFile.path);
-        // }
-
-        const safeContractDetailsData = ContractDetailsSchema.parse(req.body);
-
-        // const preparePdfData = {
-        //     name: files!.name[0].originalname,
-        //     data: files!.data[0].buffer,
-        //     contentType: files!.contentType[0].mimetype
-        // };
-
-        // const stepContractModel = new StepContract({
-        //     contractDetails: contractModel,
-        //     contractPdf: preparePdfData
-        // });
-
-        const result = await this.createContractUsecase.execute(safeContractDetailsData);
-
-        return res.status(result.status).json({
-            data: {
-                success: result.success,
-                message: result.message
-            }
-        });
+        return res.status(result.status).json({ data: { success: result.success, contract: result.data, message: result.message } });
     }
 
     public async uploadPdf(req: Request, res: Response) {
@@ -150,6 +104,7 @@ export default class ContractController {
             const formData = {
                 contract_data: req.body.contract_data,
                 step_contract: req.body.step_contract,
+                contract_details: req.body.contract_details,
                 contract_pdf: contractPdfFile
             };
 
@@ -157,7 +112,7 @@ export default class ContractController {
 
             const result = await this.uploadContractUsecase.execute(safeDataPdf);
 
-            return res.status(result.status).json({ success: result.success, message: result.message });
+            return res.status(result.status).json({ data: { success: result.success, message: result.message } });
         } catch (error: any) {
             console.error(">>> REAL ERROR STACK:", error);
             if (error.errors) {

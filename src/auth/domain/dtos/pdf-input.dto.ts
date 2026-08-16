@@ -1,3 +1,4 @@
+import { IContractDetailsInputDTO } from "./contract_details_input.dto";
 
 
 export interface IMulterFileDTO {
@@ -11,8 +12,9 @@ export interface IMulterFileDTO {
 }
 
 export interface IUploadPdfDTO {
-    contract_code: string;
+    user_id: string;
     step_contract: number;
+    contract_details: IContractDetailsInputDTO;
     contract_pdf: IMulterFileDTO;
     // contract_image: IMulterFileDTO;
 }

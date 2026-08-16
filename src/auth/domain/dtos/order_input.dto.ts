@@ -1,5 +1,11 @@
-export interface IOrderInputDTO {
+export interface IUSerInputDto {
     email: string;
+    name: string;
+    name_company: string;
+    number_phone: string;
+}
+
+export interface IOrderInputDTO {
     order_code: string;
     status_delivery: string;
     product: IProductInputDTO;
@@ -7,6 +13,7 @@ export interface IOrderInputDTO {
     address_delivery: IAddressDeliveryInputDTO;
     payment: IPaymentInputDTO;
 }
+
 
 export interface IProductInputDTO {
     name_product: string;

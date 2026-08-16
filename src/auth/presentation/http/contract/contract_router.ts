@@ -1,14 +1,11 @@
 import { Router, Request, Response } from "express";
 import IAuthRepository from "../../../domain/services/iauth_repository";
 import IContractRepository from "../../../domain/services/icontract_repository";
-import CreateContractUsecase from "../../../usecase/verify_contract_usecase";
 import ContractController from "./contract_controller";
-import ContractRepository from "../../../data/repository/contract_repository";
-import { uploadFieldsMiddleware } from "../../middleware/upload_middleware";
 import multer from "multer";
-import VerifyContractUsecase from "../../../usecase/create_contract_usecase";
 import UploadPdfUsecase from "../../../usecase/upload_pdf_usecase";
 import GetContractUsecase from "../../../usecase/get_contract_usecase";
+import CreateContractUsecase from "../../../usecase/create_contract_usecase";
 
 const storage = multer.memoryStorage();
 
@@ -45,27 +42,26 @@ export const contractUploadMiddleware = upload.fields([
     // { name: 'contract_image', maxCount: 1 }
 ]);
 export default class ContractRouter {
-    public static configure(contractRepository: ContractRepository): Router {
+    public static configure(authRepository: IAuthRepository, contractRepository: IContractRepository): Router {
         const router = Router();
 
         let controller = ContractRouter.composeController(
+            authRepository,
             contractRepository
         )
 
         router.post('/createcontract', (req: Request, res: Response) => controller.createContract(req, res));
         router.post('/getcontract', (req: Request, res: Response) => controller.getContract(req, res));
-        router.post('/verifycontract', (req: Request, res: Response) => controller.verifyContract(req, res));
         router.post('/upload', contractUploadMiddleware, (req: Request, res: Response) => controller.uploadPdf(req, res));
 
         return router;
     }
 
-    private static composeController(contractRepository: IContractRepository) {
-        const createContractUsecase = new CreateContractUsecase(contractRepository);
-        const getContractUsecase = new GetContractUsecase(contractRepository);
-        const verifyContractUsecase = new VerifyContractUsecase(contractRepository);
+    private static composeController(authRepository: IAuthRepository, contractRepository: IContractRepository) {
+        const createContractUsecase = new CreateContractUsecase(authRepository, contractRepository);
+        const getContractUsecase = new GetContractUsecase(authRepository, contractRepository);
         const uploadPdfUsecase = new UploadPdfUsecase(contractRepository);
-        const controller = new ContractController(createContractUsecase, getContractUsecase, verifyContractUsecase, uploadPdfUsecase);
+        const controller = new ContractController(createContractUsecase, getContractUsecase, uploadPdfUsecase);
 
         return controller;
     }

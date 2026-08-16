@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 import { IScopeCollection, ScopeSchema } from "./scope_model";
 
 export interface IPdfData {
@@ -13,7 +13,7 @@ const PdfSchema = new Schema<IPdfData>({
     mime_type: { type: String, default: 'application/pdf' }
 }, { _id: true, timestamps: true });
 
-export interface IContract {
+export interface IContractDetail {
     number_contract: string;
     name_client_a: string;
     name_business_owner_b: string;
@@ -31,7 +31,7 @@ export interface IContract {
     method_payment: string;
 }
 
-export const ContractSchema = new Schema({
+export const ContractDetailSchema = new Schema({
     number_contract: { type: String, required: true },
     name_client_a: { type: String, required: true },
     name_business_owner_b: { type: String, required: true },
@@ -49,20 +49,22 @@ export const ContractSchema = new Schema({
     method_payment: { type: String },
 }, { _id: true, timestamps: true })
 
-export interface IStepContract {
+export interface IContract {
+    user_id: Types.ObjectId;
     contract_code: string;
     step_contract: number;
     scope: IScopeCollection;
-    contract_details: IContract;
+    contract_details: IContractDetail;
     contract_pdf: IPdfData;
     is_success: boolean;
 }
 
-export const StepContractSchema = new Schema({
+export const ContractSchema = new Schema({
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
     contract_code: { type: String },
     step_contract: { type: Number },
     scope: { type: ScopeSchema, default: null },
-    contract_details: { type: ContractSchema, default: null },
+    contract_details: { type: ContractDetailSchema, default: null },
     contract_pdf: { type: PdfSchema, default: null },
     is_success: { type: Boolean, default: false }
 }, { _id: true, timestamps: true })

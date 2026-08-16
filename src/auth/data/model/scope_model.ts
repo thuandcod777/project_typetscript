@@ -14,7 +14,6 @@ export interface IScopeItem {
 export interface IScopeCollection {
     scopes: IScopeItem[],
     is_success: boolean,
-    is_verify_scope: boolean,
 }
 
 export const ScopeItemSchema = new Schema<IScopeItem>({
@@ -45,7 +44,6 @@ export const ScopeItemSchema = new Schema<IScopeItem>({
 export const ScopeSchema = new Schema<IScopeCollection>({
     scopes: [ScopeItemSchema],
     is_success: { type: Boolean, default: false },
-    is_verify_scope: { type: Boolean, default: false }
 }, { timestamps: true });
 
 ScopeSchema.index({ "scopes.location": "2dsphere" });

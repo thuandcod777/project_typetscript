@@ -61,7 +61,7 @@ export interface IOrder extends Document {
     user_id: Types.ObjectId;
     order_code: string;
     status_delivery: string;
-    status_pick_time: IPickTime | null;
+    status_schedule: IPickTime | null;
     product: IProduct | null;
     address_take_goods: IAddressTakeGoods | null;
     address_delivery: IAddressDelivery | null;
@@ -69,10 +69,10 @@ export interface IOrder extends Document {
 }
 
 export const OrderSchema = new Schema<IOrder>({
-    user_id: { type: mongoose.Schema.Types.ObjectId },
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     order_code: { type: String, trim: true, required: true, unique: true },
     status_delivery: { type: String, default: "Confirm" },
-    status_pick_time: { type: PickTimeSchema, default: null },
+    status_schedule: { type: PickTimeSchema, default: null },
     product: { type: ProductSchema, required: true },
     address_take_goods: { type: AddressTakeGoodsSchema, required: true },
     address_delivery: { type: AddressDeliverySchema, required: true },

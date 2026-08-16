@@ -19,11 +19,10 @@ const scopeItemSchema = z.object({
 }).strict();
 
 const scopeCollectionSchema: z.ZodType<IScopeInputDTO> = z.object({
-    email: z.string(),
+    user_id: z.string(),
     step_contract: z.number(),
     scopes: z.array(scopeItemSchema),
     is_success: z.boolean().default(false),
-    is_verify_scope: z.boolean().default(false)
 }).strict();
 
 

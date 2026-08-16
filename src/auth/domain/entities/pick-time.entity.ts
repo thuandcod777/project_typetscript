@@ -1,9 +1,14 @@
-export interface IGroupPickTime {
-    [time: string]: {
-        count: number;
-        items: PickTime[]
-    }
+import { Types } from 'mongoose';
+
+export interface IPickTimeItem {
+    _id: Types.ObjectId;
+    status_pick_time: {
+        pick_time: string;
+    };
 }
+
+export type IListPickTime = IPickTimeItem[];
+
 
 export interface IPickTimeJSON {
     pick_time: string;

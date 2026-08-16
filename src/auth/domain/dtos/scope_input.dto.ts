@@ -1,5 +1,5 @@
 export interface IScopeInputDTO {
-    email: string;
+    user_id: string;
     step_contract: number;
     scopes: {
         is_scope: boolean;
@@ -10,5 +10,4 @@ export interface IScopeInputDTO {
         };
     }[];
     is_success: boolean;
-    is_verify_scope: boolean;
 }

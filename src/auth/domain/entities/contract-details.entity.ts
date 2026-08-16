@@ -53,22 +53,6 @@ export class ContractDetails {
     }
 
     static fromJson(json: ContractDetails): ContractDetails {
-        return new ContractDetails({
-            number_contract: json.number_contract,
-            name_client_a: json.name_client_a,
-            name_business_owner_b: json.name_business_owner_b,
-            name_enterprise_a: json.name_enterprise_a,
-            name_enterprise_b: json.name_enterprise_b,
-            business_register_number_a: json.business_register_number_a,
-            business_register_number_b: json.business_register_number_b,
-            name_product: json.name_product,
-            type_weight: json.type_weight,
-            type_product: json.type_product,
-            pickup_location: json.pickup_location,
-            delivery_location: json.delivery_location,
-            method_contract: json.method_contract,
-            method_delivery: json.method_delivery,
-            method_payment: json.method_payment,
-        });
+        return new ContractDetails(json);
     }
 }

@@ -6,12 +6,12 @@ export default class PickTimeUsecase {
 
     public async execute(): Promise<ResponseDto> {
         const data = await this.picktimeRepository.get_pick_time();
-        if (!data || (Array.isArray(data) && data.length === 0)) {
+        if (!data.success) {
 
-            return ResponseDto.failure('Lấy danh sách đặt lịch thất bại');
+            return ResponseDto.failure(data.message);
 
         }
 
-        return ResponseDto.success('Lấy danh sách đặt lịch thành công');
+        return ResponseDto.success(data.message, data.data);
     }
 }

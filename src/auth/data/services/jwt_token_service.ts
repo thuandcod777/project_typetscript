@@ -17,7 +17,7 @@ export default class JwtTokenService implements ITokenService {
         return token;
     }
 
-    verifyAccessToken(token: string): string | object {
+    verifyToken(token: string): string | object {
         try {
             const decoded = jwt.verify(token, this.privateKey);
             return decoded;
@@ -26,12 +26,5 @@ export default class JwtTokenService implements ITokenService {
         }
     }
 
-    verifyRefreshToken(token: string): string | object {
-        try {
-            const decoded = jwt.verify(token, this.privateKey);
-            return decoded;
-        } catch (err) {
-            return 'Invalid Token';
-        }
-    }
+   
 }

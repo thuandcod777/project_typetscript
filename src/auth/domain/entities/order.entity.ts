@@ -22,7 +22,7 @@ interface IPaymentJSON {
 }
 
 export interface IOrderJSON {
-    user_id: string;
+    user_id: string | null;
     order_code: string;
     status_delivery: string;
     status_pick_time: IPickTimeJSON | null;
@@ -34,30 +34,28 @@ export interface IOrderJSON {
 
 
 export class Product {
-    nameProduct: string;
-    typeProduct: string;
+    name_product: string;
+    type_product: string;
     amount: number;
     width: number;
     height: number;
     weight: number;
     length: number;
-    index: number;
 
-    constructor({ nameProduct = "", typeProduct = "Select Type Product", amount = 0, width = 0, height = 0, weight = 0, length = 0, index = 0 }: Partial<Product> = {}) {
-        this.nameProduct = nameProduct;
-        this.typeProduct = typeProduct;
+    constructor({ name_product = "", type_product = "Select Type Product", amount = 0, width = 0, height = 0, weight = 0, length = 0 }: Partial<Product> = {}) {
+        this.name_product = name_product;
+        this.type_product = type_product;
         this.amount = amount;
         this.width = width;
         this.height = height;
         this.weight = weight;
         this.length = length;
-        this.index = index;
     }
 
     static fromJson(json: IProductJSON): Product {
         return new Product({
-            nameProduct: json.name_product,
-            typeProduct: json.type_product,
+            name_product: json.name_product,
+            type_product: json.type_product,
             // Chuyển đổi sang number đề phòng trường hợp nhận vào kiểu string giống int.parse() trong Dart
             amount: typeof json.amount === 'string' ? parseInt(json.amount, 10) : json.amount,
             width: typeof json.width === 'string' ? parseInt(json.width, 10) : json.width,
@@ -69,8 +67,8 @@ export class Product {
 
     toMap(): Record<string, any> {
         return {
-            "name_product": this.nameProduct,
-            "type_product": this.typeProduct,
+            "name_product": this.name_product,
+            "type_product": this.type_product,
             "amount": this.amount,
             "width": this.width,
             "height": this.height,
@@ -129,28 +127,28 @@ export class AddressDelivery {
 }
 
 export class Payment {
-    typePayment: string;
-    stepPayment: number;
+    type_payment: string;
+    step_payment: number;
 
-    constructor({ typePayment = "", stepPayment = 0 }: Partial<Payment> = {}) {
-        this.typePayment = typePayment;
-        this.stepPayment = stepPayment;
+    constructor({ type_payment = "", step_payment = 0 }: Partial<Payment> = {}) {
+        this.type_payment = type_payment;
+        this.step_payment = step_payment;
     }
 
     static fromJson(json: IPaymentJSON): Payment {
         return new Payment({
-            typePayment: json.type_payment,
-            stepPayment: json.step_payment,
+            type_payment: json.type_payment,
+            step_payment: json.step_payment,
         });
     }
 
     toMap(): Record<string, any> {
-        return { "type_payment": this.typePayment, "step_payment": this.stepPayment };
+        return { "type_payment": this.type_payment, "step_payment": this.step_payment };
     }
 }
 
 export default class Order {
-    readonly user_id: string;
+    readonly user_id: string | null;
     readonly order_code: string;
     readonly status_delivery: string;
     readonly status_pick_time: PickTime | null;
@@ -160,7 +158,7 @@ export default class Order {
     readonly payment: Payment;
 
     constructor({
-        user_id = "",
+        user_id = null,
         order_code = "",
         status_delivery = "Confirm",
         status_pick_time = null,
@@ -168,7 +166,7 @@ export default class Order {
         address_take_goods,
         address_delivery,
         payment }: {
-            user_id?: string,
+            user_id?: string | null;
             order_code?: string;
             status_delivery?: string;
             status_pick_time?: PickTime | null;
@@ -189,7 +187,7 @@ export default class Order {
 
     static fromJson(json: IOrderJSON): Order {
         return new Order({
-            user_id: json.user_id,
+            user_id: json.user_id ?? null,
             order_code: json.order_code,
             status_delivery: json.status_delivery,
             status_pick_time: json.status_pick_time ? PickTime.fromJson(json.status_pick_time) : null,

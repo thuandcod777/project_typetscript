@@ -1,51 +1,40 @@
 import { Router, Request, Response } from "express";
 import IAuthRepository from "../../../domain/services/iauth_repository";
-import SignUpUsecase from "../../../usecase/signup_usecase";
-import { signinValidatorRules, signupValidatorRules, validate } from "../../../data/helper/validator";
 import AuthController from "./auth_controller";
 import SignInScopeUsecase from "../../../usecase/signin_usecase";
-import JwtTokenService from "../../../data/services/jwt_token_service";
 import LogOutScopeUseCase from "../../../usecase/logout_usecase";
 import { IRedisService } from "../../../domain/services/iredis_service";
 import ITokenService from "../../../domain/services/itoken_service";
+import GetContractUsecase from "../../../usecase/get_contract_usecase";
+import GetUserProfileUsecase from "../../../usecase/get_user_profile_usecase";
+import IContractRepository from "../../../domain/services/icontract_repository";
 
 
 
 export default class AuthRouter {
-    public static configure(authRepository: IAuthRepository,
-        redisService: IRedisService,
-        tokenService: ITokenService,
-    ): Router {
+    public static configure(authRepository: IAuthRepository, contractRepository: IContractRepository): Router {
         const router = Router();
 
         let controller = AuthRouter.composeController(
             authRepository,
-            redisService,
-            tokenService,
+            contractRepository
         );
 
-        router.get("/", (req, res) => {
+        /* router.get("/", (req, res) => {
             res.send({
                 message: "API IS WORKING!!"
             })
-        });
+        }); */
 
-        router.post('/signin', (req: Request, res: Response) => controller.signin(req, res));
-        router.post('/signup', /* signupValidatorRules(), validate, */(req: Request, res: Response) => controller.signup(req, res));
-        router.post('/logout', (req: Request, res: Response) => controller.logout(req, res));
+        router.post('/getuser', (req: Request, res: Response) => controller.getUserProfile(req, res));
 
         return router;
     }
 
 
-    private static composeController(authRepository: IAuthRepository,
-        redisService: IRedisService,
-        tokenService: ITokenService,
-    ): AuthController {
-        const signupUsercase = new SignUpUsecase(authRepository, tokenService, redisService)
-        const signinUsercase = new SignInScopeUsecase(authRepository, redisService, tokenService);
-        const logoutUsercase = new LogOutScopeUseCase(authRepository, redisService);
-        const controller = new AuthController(signinUsercase, signupUsercase, logoutUsercase, tokenService)
+    private static composeController(authRepository: IAuthRepository, contractRepository: IContractRepository): AuthController {
+        const getContractUsecase = new GetUserProfileUsecase(authRepository, contractRepository);
+        const controller = new AuthController(getContractUsecase);
 
         return controller
     }

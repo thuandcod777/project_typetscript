@@ -1,5 +1,3 @@
-
-
 export interface IGeoJsonPoint {
     type: 'Point';
     coordinates: [number, number];
@@ -82,29 +80,21 @@ export class ScopeCollection {
 export interface IScopeJSON {
     scopes: IScopeCollectionJson[];
     is_success: boolean;
-    is_verify_scope: boolean;
 }
 
 export default class Scope {
     readonly scopes: ScopeCollection[];
     readonly is_success: boolean;
-    readonly is_verify_scope: boolean;
 
-    constructor({ scopes, is_success, is_verify_scope }: {
-        scopes: ScopeCollection[],
-        is_success: boolean,
-        is_verify_scope: boolean
-    } = { scopes: [], is_success: false, is_verify_scope: false }) {
+    constructor({ scopes = [], is_success = false }: Partial<IScopeJSON>) {
         this.scopes = scopes;
         this.is_success = is_success;
-        this.is_verify_scope = is_verify_scope;
     }
 
     public static fromJson(json: IScopeJSON): Scope {
         return new Scope({
             scopes: json.scopes.map(item => ScopeCollection.fromJson(item)),
             is_success: json.is_success,
-            is_verify_scope: json.is_verify_scope
         });
 
     }

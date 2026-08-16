@@ -1,6 +1,4 @@
 export interface IContractDetailsInputDTO {
-    email: string;
-    step_contract: number;
     number_contract: string,
     name_client_a: string;
     name_business_owner_b: string;

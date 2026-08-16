@@ -7,10 +7,11 @@ export default class ScopeUsecase {
     public async execute(scopeDataInput: IScopeInputDTO): Promise<ResponseDto> {
         const scope = await this.scopeRepository.saveScopeList(scopeDataInput);
 
-        if (!scope) {
-            return ResponseDto.failure('Lưu danh sách phạm vi thất bại');
+        if (!scope.success) {
+            console.log(scope.message);
+            return ResponseDto.failure(scope.message);
         }
 
-        return ResponseDto.success('Lưu danh sách phạm vi thành công');
+        return ResponseDto.success(scope.message);
     }
 }
