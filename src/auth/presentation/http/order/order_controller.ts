@@ -92,7 +92,8 @@ export default class OrderController {
             const result = await this.findOrderUsecase.execute(order_code);
             return res.status(result.status).json({
                 data: {
-                    order: result.data,
+                    user: result.data?.user,
+                    order: result.data?.order,
                     success: result.success,
                     message: result.message
                 }

@@ -4,6 +4,8 @@ import { IOrderJSON } from "../../domain/entities/order.entity";
 import { IOrderInputDTO } from "../../domain/dtos/order_input.dto";
 import { IOrder, OrderSchema } from "../model/order_model";
 import Order from "../../domain/entities/order.entity";
+import { IUser, UserSchema } from "../model/auth_model";
+import User from "../../domain/entities/user.entity";
 
 export default class OrderRepository implements IOrderRepository {
     constructor(private readonly client: Mongoose) { }
@@ -32,20 +34,21 @@ export default class OrderRepository implements IOrderRepository {
         return { success: true, message: "Đăng ký đơn hàng thành công." };
     }
 
-    public async findOrder(orderData: string): Promise<Order> {
+    public async findOrder(orderCode: string): Promise<{ success: boolean, userData: User | null, orderData: Order | null, message: string }> {
+        const userModel = this.client.model<IUser>('User', UserSchema);
         const orderModel = this.client.model<IOrder>('Order', OrderSchema);
 
-        const order = await orderModel.findOne({ order_code: orderData }).lean();
+        const order = await orderModel.findOne({ order_code: orderCode }).lean();
 
         if (!order) {
-            throw new Error(`Không tìm thấy đơn hàng với mã: ${orderData}`);
+            return { success: false, userData: null, orderData: null, message: "Không tìm thấy mã đơn hàng." };
         }
 
-        const orderJson: IOrderJSON = {
+        const orderData = Order.fromJson({
             user_id: order.user_id.toString() ?? null, // Chuyển ObjectId sang string
             order_code: order.order_code,
             status_delivery: order.status_delivery,
-            status_pick_time: order.status_schedule,
+            status_schedule: order.status_schedule,
             product: {
                 name_product: order.product!.name_product,
                 type_product: order.product!.type_product,
@@ -69,10 +72,25 @@ export default class OrderRepository implements IOrderRepository {
                 type_payment: order.payment!.type_payment,
                 step_payment: order.payment!.step_payment,
             },
-        };
+        });
 
-        return Order.fromJson(orderJson);
+        const user = await userModel.findOne({ user_id: orderData.user_id?.toString() ?? null }).lean();
 
+        if (!user) {
+            return { success: false, userData: null, orderData: null, message: "Không tìm thấy thông tin người dùng tương ứng." };
+        }
+
+        const userData = User.fromJson({
+            _id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            name_company: user.name_company,
+            number_phone: user.number_phone,
+            type: user.type,
+            role: user.role,
+        });
+
+        return { success: true, userData: userData, orderData: orderData, message: "Tìm kiếm đơn hàng thành công" };
     }
 
     public async verifyOrderCode(orderCode: string): Promise<{ success: boolean, message: string }> {

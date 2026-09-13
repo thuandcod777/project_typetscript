@@ -2,13 +2,14 @@ import { IUserSessionInputDTO } from "../domain/dtos/register_input.dto";
 import { ResponseDto } from "../domain/entities/response.entity";
 import IAuthRepository from "../domain/services/iauth_repository";
 import IContractRepository from "../domain/services/icontract_repository";
-import UserContract from "../domain/entities/user_contract";
+import UserContract from "../domain/entities/object_data.entity";
 import { Contract } from "../domain/entities/contract.entity";
+import ObjectData from "../domain/entities/object_data.entity";
 
 export default class GetUserProfileUsecase {
     constructor(private authRepository: IAuthRepository, private contractRepository: IContractRepository) { }
 
-    public async execute(userSession: IUserSessionInputDTO): Promise<ResponseDto<UserContract>> {
+    public async execute(userSession: IUserSessionInputDTO): Promise<ResponseDto<ObjectData>> {
 
         const isUserProfile = await this.authRepository.getUserProfileFromSession(userSession.token, userSession.role);
 
@@ -26,7 +27,7 @@ export default class GetUserProfileUsecase {
         }
 
 
-        const userContract = new UserContract(
+        const userContract = new ObjectData(
             { user: isUserProfile.userData!, contract: contractData }
         );
 

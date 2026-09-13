@@ -3,7 +3,6 @@ import { Schema } from "mongoose";
 export type PickAction = 'pending' | 'completed' | 'cancel';
 
 export interface IPickTime {
-    order_code: string;
     name_sender: string;
     number_phone: string;
     license: string;

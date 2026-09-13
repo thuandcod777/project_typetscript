@@ -8,7 +8,7 @@ export default class PickTimeRepository implements IPickTimeRepository {
 
     constructor(private readonly client: Mongoose) { }
 
-    public async get_pick_time(): Promise<{ success: boolean, message: string, data: IListPickTime }> {
+    public async get_pick_time(): Promise<{ success: boolean, data: IListPickTime, message: string, }> {
         const orderModel = this.client.model<IOrder>('Order', OrderSchema);
         const startOfToDay = new Date();
         startOfToDay.setHours(0, 0, 0, 0);
@@ -17,19 +17,14 @@ export default class PickTimeRepository implements IPickTimeRepository {
         endOfToDay.setHours(23, 59, 59, 999);
 
         const dataPickTime = await orderModel.find({
-            "status_pick_time.createdAt": {
+            "status_schedule.createdAt": {
                 $gte: startOfToDay,
                 $lte: endOfToDay
             }
-        }).select('status_pick_time.pick_time').lean<IListPickTime>();
+        }).select('status_schedule.pick_time').lean<IListPickTime>();
 
-        console.log(`Data Pick Time ${dataPickTime}`);
 
-        if (!dataPickTime || dataPickTime.length === 0) {
-            return { success: false, message: "Không tìm thấy danh sách lịch hẹn trong ngày", data: [] };
-        }
-
-        return { success: true, message: "Lấy danh sách đặt lịch thành công", data: dataPickTime };
+        return { success: true, data: dataPickTime || [], message: "Lấy danh sách đặt lịch thành công", };
     }
 
     public async update_status_pick_time(pickTimeData: IPickTimeInputDTO): Promise<{ success: boolean, message: string }> {

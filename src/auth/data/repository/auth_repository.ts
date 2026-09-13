@@ -130,62 +130,6 @@ export default class AuthRepository implements IAuthRepository {
         }
     }
 
-    /*   public async getContract(contractId: string): Promise<Contract> {
-  
-          if (!Types.ObjectId.isValid(contractId)) {
-              throw new Error(`Invalid Contract ID format: ${contractId}`);
-          }
-  
-          const contractModel = this.client.model<IStepContract>('Contract', StepContractSchema);
-  
-          const rawContract = await contractModel.findById(contractId);
-  
-          if (!rawContract) {
-              throw new Error(`Contract with ID ${contractId} does not exist`);
-          }
-  
-          return {
-              contract_code: rawContract.contract_code,
-              step_contract: rawContract.step_contract,
-              contract_details: rawContract.contract_details ? {
-                  number_contract: rawContract.contract_details.number_contract,
-                  name_client_a: rawContract.contract_details.name_client_a,
-                  name_business_owner_b: rawContract.contract_details.name_business_owner_b,
-                  name_enterprise_a: rawContract.contract_details.name_enterprise_a,
-                  name_enterprise_b: rawContract.contract_details.name_enterprise_b,
-                  business_register_number_a: rawContract.contract_details.business_register_number_a,
-                  business_register_number_b: rawContract.contract_details.business_register_number_b,
-                  name_product: rawContract.contract_details.name_product,
-                  type_weight: rawContract.contract_details.type_weight,
-                  type_product: rawContract.contract_details.type_product,
-                  pickup_location: rawContract.contract_details.pickup_location,
-                  delivery_location: rawContract.contract_details.delivery_location,
-                  method_contract: rawContract.contract_details.method_contract,
-                  method_delivery: rawContract.contract_details.method_delivery,
-                  method_payment: rawContract.contract_details.method_payment,
-              } : null,
-              scope: rawContract.scope ? {
-                  scopes: (rawContract.scope.scopes ?? []).map((item) => {
-                      return {
-                          is_scope: item.is_scope,
-                          address: item.address,
-                          location: item.location
-                      };
-                  }
-                  ),
-                  is_success: rawContract.scope.is_success ?? false,
-                  is_verify_scope: rawContract.scope.is_verify_scope ?? false,
-              } : null,
-              contract_pdf: rawContract.contract_pdf ? {
-                  id: (rawContract.contract_pdf as any)._id?.toString() ?? '',
-                  name: rawContract.contract_pdf.name,
-                  buffer: rawContract.contract_pdf.buffer,
-                  mime_type: rawContract.contract_pdf.mime_type,
-              } : null,
-              is_success: rawContract?.is_success!,
-          }
-      } */
-
     public async getUserProfileFromSession(token: string, role: string): Promise<{ success: boolean, userData: User | null, message: string }> {
         const sessionModel = this.client.model<IAuthSession>('Session', AuthSchema);
         const userModel = this.client.model<IUser>('User', UserSchema);

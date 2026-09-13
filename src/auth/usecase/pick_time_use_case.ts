@@ -6,11 +6,6 @@ export default class PickTimeUsecase {
 
     public async execute(): Promise<ResponseDto> {
         const data = await this.picktimeRepository.get_pick_time();
-        if (!data.success) {
-
-            return ResponseDto.failure(data.message);
-
-        }
 
         return ResponseDto.success(data.message, data.data);
     }

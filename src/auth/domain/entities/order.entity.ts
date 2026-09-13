@@ -25,7 +25,7 @@ export interface IOrderJSON {
     user_id: string | null;
     order_code: string;
     status_delivery: string;
-    status_pick_time: IPickTimeJSON | null;
+    status_schedule: IPickTimeJSON | null;
     product: IProductJSON;
     address_take_goods: IAddressJSON;
     address_delivery: IAddressJSON;
@@ -151,7 +151,7 @@ export default class Order {
     readonly user_id: string | null;
     readonly order_code: string;
     readonly status_delivery: string;
-    readonly status_pick_time: PickTime | null;
+    readonly status_schedule: PickTime | null;
     readonly product: Product;
     readonly address_take_goods: AddressTakeGoods;
     readonly address_delivery: AddressDelivery;
@@ -161,7 +161,7 @@ export default class Order {
         user_id = null,
         order_code = "",
         status_delivery = "Confirm",
-        status_pick_time = null,
+        status_schedule = null,
         product,
         address_take_goods,
         address_delivery,
@@ -169,7 +169,7 @@ export default class Order {
             user_id?: string | null;
             order_code?: string;
             status_delivery?: string;
-            status_pick_time?: PickTime | null;
+            status_schedule?: PickTime | null;
             product: Product;
             address_take_goods: AddressTakeGoods;
             address_delivery: AddressDelivery;
@@ -178,7 +178,7 @@ export default class Order {
         this.user_id = user_id;
         this.order_code = order_code;
         this.status_delivery = status_delivery;
-        this.status_pick_time = status_pick_time;
+        this.status_schedule = status_schedule;
         this.product = product;
         this.address_take_goods = address_take_goods;
         this.address_delivery = address_delivery;
@@ -190,7 +190,7 @@ export default class Order {
             user_id: json.user_id ?? null,
             order_code: json.order_code,
             status_delivery: json.status_delivery,
-            status_pick_time: json.status_pick_time ? PickTime.fromJson(json.status_pick_time) : null,
+            status_schedule: json.status_schedule ? PickTime.fromJson(json.status_schedule) : null,
             product: Product.fromJson(json.product),
             address_take_goods: AddressTakeGoods.fromJson(json.address_take_goods),
             address_delivery: AddressDelivery.fromJson(json.address_delivery),
