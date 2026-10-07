@@ -42,4 +42,3 @@ export interface IPaymentInputDTO {
     step_payment: number;
 }
 
-

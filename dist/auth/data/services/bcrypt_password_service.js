@@ -1,0 +1,19 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const bcrypt_1 = __importDefault(require("bcrypt"));
+class BcryptPasswordService {
+    saltRound;
+    constructor(saltRound = 10) {
+        this.saltRound = saltRound;
+    }
+    hash(password) {
+        return bcrypt_1.default.hash(password, this.saltRound);
+    }
+    compare(password, hash) {
+        return bcrypt_1.default.compare(password, hash);
+    }
+}
+exports.default = BcryptPasswordService;

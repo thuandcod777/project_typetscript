@@ -13,7 +13,7 @@ export default class PickTimeRouter {
         let controller = PickTimeRouter.composeController(picktimeRepository);
 
         router.get('/getpicktime', (req: Request, res: Response) => controller.get_pick_time(req, res));
-        router.post('/updatepicktime', (req: Request, res: Response) => controller.update_pick_time(req, res));
+        router.post('/createpicktime', (req: Request, res: Response) => controller.update_pick_time(req, res));
         return router;
     }
 

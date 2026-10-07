@@ -15,6 +15,8 @@ import PickTimeRepository from './auth/data/repository/pick_time_repository';
 import ContractRepository from './auth/data/repository/contract_repository';
 import ContractRouter from './auth/presentation/http/contract/contract_router';
 import ScopeRepository from './auth/data/repository/scope_repository';
+import ContactRepository from './auth/data/repository/contact_repository';
+import ContactRouter from './auth/presentation/http/contact/contact_router';
 
 export default class CompositionRoot {
     private static client: Mongoose;
@@ -35,7 +37,7 @@ export default class CompositionRoot {
         this.client.connect(connecionStr, options /*  { connectTimeoutMS: 10000 } */
         ).then(() => console.log("Database connected!")).catch(err => console.log(err));
 
-        this.redisClient = createClient({ url: 'redis://localhost:6379' });
+        this.redisClient = createClient({ url: 'redis://tnh-redis-server:6379' });
 
         this.redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
@@ -52,7 +54,6 @@ export default class CompositionRoot {
         const contractRepository = new ContractRepository(this.client);
         return AuthRouter.configure(authRepository, contractRepository);
     }
-
 
     public static orderRouter() {
         const authRepository = new AuthRepository(this.client);
@@ -81,5 +82,10 @@ export default class CompositionRoot {
         const authRepository = new AuthRepository(this.client);
         const contractRepository = new ContractRepository(this.client);
         return ContractRouter.configure(authRepository, contractRepository);
+    }
+
+    public static contactRouter() {
+        const contactRepository = new ContactRepository(this.client);
+        return ContactRouter.configure(contactRepository);
     }
 }

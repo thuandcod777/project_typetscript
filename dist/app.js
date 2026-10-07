@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const compositition_1 = __importDefault(require("./compositition"));
+dotenv_1.default.config();
+compositition_1.default.configure();
+const PORT = 5000;
+const app = (0, express_1.default)();
+app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({ extended: true }));
+app.use('/api/v2/user', compositition_1.default.authRouter());
+app.use('/api/v2/delivery', compositition_1.default.orderRouter());
+app.use('/api/v2/picktime', compositition_1.default.pickTimeRouter());
+app.use('/api/v2/scope', compositition_1.default.scopeRouter());
+app.use('/api/v2/brand', compositition_1.default.brandRouter());
+app.use('/api/v2/exchange', compositition_1.default.contractRouter());
+const HOST = '0.0.0.0';
+app.listen(Number(PORT), HOST, () => console.log(`listening on port ${PORT}`));

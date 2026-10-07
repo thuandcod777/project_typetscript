@@ -29,7 +29,6 @@ export const AuthSchema = new Schema<IAuthSession>({
     is_block: { type: Boolean, required: true },
 }, { _id: true, timestamps: true });
 
-
 export interface IUser {
     name: string,
     email: string,
