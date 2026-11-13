@@ -1,14 +1,11 @@
 import { Request, Response } from 'express'
-import ITokenService from '../../../domain/services/itoken_service';
 import { z } from 'zod';
-import LogOutUseCase from '../../../usecase/logout_usecase';
-import SignInUsecase from '../../../usecase/signin_usecase';
 import { IUserSessionInputDTO } from '../../../domain/dtos/register_input.dto';
 import GetUserProfileUsecase from '../../../usecase/get_user_profile_usecase';
 
 export const UserSessionSchema: z.ZodType<IUserSessionInputDTO> = z.object({
     token: z.string(),
-    role: z.string(),
+    roles: z.string(),
 }).strict();
 
 export default class AuthController {
@@ -25,7 +22,8 @@ export default class AuthController {
 
             return res.status(result.status).json({
                 data: {
-                    success: result.success, user: result.data!.user, contract: result.data!.contract, message: result.message
+                    success: result.success, user: result.data ? result.data.user : null,
+                    contract: result.data ? result.data.contract : null, message: result.message
                 }
             });
         } catch (error: any) {

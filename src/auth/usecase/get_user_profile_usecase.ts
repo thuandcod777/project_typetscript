@@ -11,14 +11,14 @@ export default class GetUserProfileUsecase {
 
     public async execute(userSession: IUserSessionInputDTO): Promise<ResponseDto<ObjectData>> {
 
-        const isUserProfile = await this.authRepository.getUserProfileFromSession(userSession.token, userSession.role);
+        const isUserProfile = await this.authRepository.getUserProfileFromSession(userSession.token, userSession.roles);
 
         if (!isUserProfile.success) {
             return ResponseDto.failure(isUserProfile.message);
         }
         let contractData: Contract | null = null;
 
-        if (userSession.role === 'cooperative') {
+        if (userSession.roles === 'cooperative') {
             const isContract = await this.contractRepository.getContract(isUserProfile.userData!._id!.toString());
             if (!isContract.success) {
                 return ResponseDto.failure(isContract.message);

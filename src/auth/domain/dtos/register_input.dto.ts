@@ -1,6 +1,6 @@
 export interface IUserSessionInputDTO {
     token: string;
-    role: string;
+    roles: string;
 }
 
 

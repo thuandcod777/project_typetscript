@@ -34,8 +34,8 @@ export interface IUser {
     email: string,
     name_company: string,
     number_phone: string,
-    type: string,
-    role: StatusRole,
+    types: string,
+    roles: StatusRole,
 }
 
 export const UserSchema = new Schema({
@@ -43,8 +43,8 @@ export const UserSchema = new Schema({
     name: { type: String, reqruied: true, default: null },
     name_company: { type: String, required: true, default: null },
     number_phone: { type: String, required: true, default: null },
-    type: { type: String, required: true, default: "" },
-    role: { type: String, enum: ['client', 'cooperative'], required: true, default: 'client' },
+    types: { type: String, required: true, default: "" },
+    roles: { type: String, enum: ['client', 'cooperative'], required: true, default: 'client' },
 }, { _id: true, timestamps: true });
 
 UserSchema.plugin(restoreFieldsPlugin);

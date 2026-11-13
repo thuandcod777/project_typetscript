@@ -1,12 +1,9 @@
 import { Mongoose } from 'mongoose'
 import AuthRouter from './auth/presentation/http/auth/auth_router'
 import AuthRepository from './auth/data/repository/auth_repository'
-import BcryptPasswordService from './auth/data/services/bcrypt_password_service'
-import JwtTokenService from './auth/data/services/jwt_token_service'
 import OrderRouter from './auth/presentation/http/order/order_router';
 import OrderRepository from './auth/data/repository/order_repository';
 import ScopeRouter from './auth/presentation/http/scope/scope_router';
-import { RedisRepository } from './auth/data/repository/redis_repository';
 import { createClient, RedisClientType } from "redis";
 import BrandRespoitory from './auth/data/repository/brand_repository';
 import BrandRouter from './auth/presentation/http/brand/brand_router';
@@ -37,8 +34,8 @@ export default class CompositionRoot {
         this.client.connect(connecionStr, options /*  { connectTimeoutMS: 10000 } */
         ).then(() => console.log("Database connected!")).catch(err => console.log(err));
 
-        this.redisClient = createClient({ url: 'redis://tnh-redis-server:6379' });
-
+        /* this.redisClient = createClient({ url: 'redis://tnh-redis-server:6379' }); */
+        this.redisClient = createClient({ url: 'redis://127.0.0.1:6379' });
         this.redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
         try {

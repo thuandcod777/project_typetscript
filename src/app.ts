@@ -20,4 +20,4 @@ app.use('/api/v2/exchange', CompositionRoot.contractRouter());
 app.use('/api/v2/contact', CompositionRoot.contactRouter());
 
 const HOST = '0.0.0.0';
-app.listen(Number(PORT), HOST, () => console.log(`listening on port ${PORT}`));
+app.listen(Number(process.env.PORT), HOST, () => console.log(`listening on port ${process.env.PORT}`));

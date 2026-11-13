@@ -13,5 +13,5 @@ export default interface IAuthRepository {
     updateToken(sessionId: string, refreshToken: string, accessToken: string, expiresAt: Date): Promise<boolean>;
     activateSession(userId: string): Promise<boolean>;
     checkSessionExists(): Promise<boolean>;
-    getUserProfileFromSession(token: string, role: string): Promise<{ success: boolean, userData: User | null, message: string }>;
+    getUserProfileFromSession(token: string, roles: string): Promise<{ success: boolean, userData: User | null, message: string }>;
 }

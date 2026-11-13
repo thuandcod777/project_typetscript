@@ -86,8 +86,8 @@ export default class OrderRepository implements IOrderRepository {
             name: user.name,
             name_company: user.name_company,
             number_phone: user.number_phone,
-            type: user.type,
-            role: user.role,
+            types: user.types,
+            roles: user.roles,
         });
 
         return { success: true, userData: userData, orderData: orderData, message: "Tìm kiếm đơn hàng thành công" };

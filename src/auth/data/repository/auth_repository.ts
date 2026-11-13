@@ -38,7 +38,7 @@ export default class AuthRepository implements IAuthRepository {
             name: user.name,
             name_company: user.name_company,
             number_phone: user.number_phone,
-            role: user.role
+            roles: user.roles
         });
 
         return { success: true, userData: userData, message: "Tìm kiếm tài khoản thành công." };
@@ -130,15 +130,15 @@ export default class AuthRepository implements IAuthRepository {
         }
     }
 
-    public async getUserProfileFromSession(token: string, role: string): Promise<{ success: boolean, userData: User | null, message: string }> {
+    public async getUserProfileFromSession(token: string, roles: string): Promise<{ success: boolean, userData: User | null, message: string }> {
         const sessionModel = this.client.model<IAuthSession>('Session', AuthSchema);
         const userModel = this.client.model<IUser>('User', UserSchema);
 
         let data = {};
 
-        if (role === 'client') {
+        if (roles === 'client') {
             data = { access_token: token }
-        } else if (role === 'cooperative') {
+        } else if (roles === 'cooperative') {
             data = { refresh_token: token }
         } else {
             return { success: false, userData: null, message: "Vai trò không hợp lệ." };
@@ -162,8 +162,8 @@ export default class AuthRepository implements IAuthRepository {
             name: user.name,
             name_company: user.name_company,
             number_phone: user.number_phone,
-            type: user.type,
-            role: user.role,
+            types: user.types,
+            roles: user.roles,
         });
 
         return { success: true, userData: userData, message: "Tìm kiếm thông tin người dùng thành công." };
